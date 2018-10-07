@@ -371,3 +371,24 @@ lonlat_to_bearing <- function(origin_lon, origin_lat, dest_lon, dest_lat, earth_
              gc_dist = gc_dist)
   return(ret)
 }
+
+#------------------------------------------------
+#' @title Create layout matrix automatically from plot number
+#'
+#' @description Create a layout matrix that can be used with gridExtra to 
+#'   arrange ggplot objects. The dimensions of the matrix are chosen 
+#'   automatically from the number of plots to create a rectangular arrangement
+#'   (portrait) of sufficient size.
+#'
+#' @param n number of plots in final layout
+#'
+#' @export
+
+layout_mat <- function(n) {
+  c <- ceiling(sqrt(n))
+  if (c*(c-1) >= n) {
+    return(matrix(1:(c*(c-1)), nrow = c, byrow = TRUE))
+  } else {
+    return(matrix(1:c^2, nrow = c, byrow = TRUE))
+  }
+}
