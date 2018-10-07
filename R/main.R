@@ -1,7 +1,10 @@
 
 #------------------------------------------------
+# define package imports
 
 #' @importFrom RColorBrewer brewer.pal
+#' @importFrom grDevices colorRampPalette
+#' @import graphics
 #' @useDynLib bobfunctions2, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
 NULL
@@ -41,52 +44,330 @@ dummy1 <- function(x = 1:5) {
 }
 
 #------------------------------------------------
-#' @title Expand series of colours by interpolation
+#' @title Produce script header text
 #'
-#' @description Expand series of colours by interpolating a given vector of raw
-#'   colours. The pattern of interpolation is designed so that (n+1)th
-#'   interpolation contains the nth interpolation plus one more colour, rather
-#'   than being a completely different series.
+#' @description Produce header text to paste into new script (automatically 
+#'   copied to the clipboard). Different header types are available for
+#'   different types of script (see below).
 #'
-#' @details Takes a vector of values, returns the square.
-#'
-#' @param n how many colours to return
-#' @param raw_cols vector of colours to interpolate
+#' @param type switches between the following text blocks:
+#'   \itemize{
+#'     \item{type = 1: basic header including name, author, date and purpose}
+#'     \item{type = 2: as above, plus list of useful commands and shortcuts when
+#'     working with packages}
+#'   }
 #'
 #' @export
 
-more_colours <- function(n, raw_cols = brewer.pal(10, "Paired")) {
+header <- function(type = 1) {
   
   # check inputs
-  assert_single_pos_int(n, zero_allowed = FALSE)
-  assert_string(raw_cols)
-  assert_vector(raw_cols)
+  assert_single_int(type)
+  assert_in(type, 1:2)
   
-  # generate colour palette from raw colours
-  my_palette <- colorRampPalette(raw_cols)
+  # make basic text list
+  s <- list()
+  s <- c(s, "")
+  s <- c(s, "# .R")
+  s <- c(s, "#")
+  s <- c(s, "# Author: Bob Verity")
+  s <- c(s, paste0("# Date: ", Sys.Date()))
+  s <- c(s, "#")
+  s <- c(s, "# Purpose:")
+  s <- c(s, "# (this is an example header)")
+  s <- c(s, "#")
   
-  # simple case if n small
-  if (n <= 2) {
-    return(my_palette(3)[1:n])
+  # type2 text
+  if (type == 2) {
+    s <- c(s, "")
+    s <- c(s, "# RStudio shortcuts:")
+    s <- c(s, "#    cmd+shift+L     : load package from local version")
+    s <- c(s, "#    cmd+shift+D     : document (NB, option must be activated in Build Tools)")
+    s <- c(s, "#    cmd+shift+E     : check")
+    s <- c(s, "#    cmd+shift+T     : test")
+    s <- c(s, "")
+    s <- c(s, "# Useful commands:")
+    s <- c(s, "# devtools::install()  # install package")
+    s <- c(s, "# pkgdown::build_site() # build all pages of pkgdown website")
+    s <- c(s, "# pkgdown::build_article('my-article')  # build single vignette")
+    s <- c(s, "# check('.', args = '--no-examples')  # run checks without examples")
+    s <- c(s, "# covr::report()    # interactive coverage report")
   }
   
-  # interpolate colours by repeatedly splitting the [0,1] interval until we have
-  # enough values. n_steps is the number of times we have to do this. n_breaks
-  # is the number of breaks for each step
-  n_steps <- ceiling(log(n-1)/log(2))
-  n_breaks <- 2^(1:n_steps) + 1
+  # further shared text
+  s <- c(s, "")
+  s <- c(s, "# load bobfunctions2 package. If not already installed this can be obtained from")
+  s <- c(s, "# Github via the command devtools::install_github('bobverity/bobfunctions2')")
+  s <- c(s, "library(bobfunctions2)")
+  s <- c(s, "")
+  s <- c(s, "# ------------------------------------------------------------------")
   
-  # split the [0,1] interval this many times and drop duplicated values
-  s <- unlist(mapply(function(x) seq(0,1,l=x), n_breaks, SIMPLIFY = FALSE))
-  s <- s[!duplicated(s)]
+  # combine text
+  ret <- paste(unlist(s), collapse = "\n")
   
-  # convert s to integer index
-  w <- match(s, seq(0,1,l = n_breaks[n_steps]))
-  w <- w[1:n]
+  # copy to clipboard
+  clip <- pipe("pbcopy", "w")                       
+  write(ret, file = clip)                               
+  close(clip)
   
-  # get final colours
-  all_cols <- my_palette(n_breaks[n_steps])
-  ret <- all_cols[w]
+  # print text to console
+  cat(ret)
+}
+
+#------------------------------------------------
+#' @title Produce function header text
+#'
+#' @description Produce header text for a single function to paste into script
+#'   (automatically copied to the clipboard). Header text is written in roxygen
+#'   format.
+#'
+#' @param type switches between the following text blocks:
+#'   \itemize{
+#'     \item{type = 1: basic header}
+#'     \item{type = 2: complete header with all bells and whistles}
+#'   }
+#'
+#' @export
+
+func_header <- function(type = 1) {
   
+  # check inputs
+  assert_single_int(type)
+  assert_in(type, 1:2)
+  
+  # make type1 text list
+  s <- list()
+  if (type == 1) {
+    s <- c(s, "#------------------------------------------------")
+    s <- c(s, "#' @title TODO - title")
+    s <- c(s, "#'")
+    s <- c(s, "#' @description TODO - description")
+    s <- c(s, "#'")
+    s <- c(s, "#' @details TODO - details")
+    s <- c(s, "#'")
+    s <- c(s, "#' @param x TODO - parameter description")
+    s <- c(s, "#'")
+    s <- c(s, "#' @export")
+  }
+  
+  # make type2 text list
+  if (type == 2) {
+    s <- c(s, "#------------------------------------------------")
+    s <- c(s, "#' @title TODO - title")
+    s <- c(s, "#'")
+    s <- c(s, "#' @description TODO - description")
+    s <- c(s, "#'")
+    s <- c(s, "#' @details TODO - details")
+    s <- c(s, "#'")
+    s <- c(s, "#' @param x TODO - parameter description")
+    s <- c(s, "#' @param y TODO - parameter description")
+    s <- c(s, "#'   \\itemize{")
+    s <- c(s, "#'     \\item{bullet 1 text}")
+    s <- c(s, "#'     \\item{bullet 2 text}")
+    s <- c(s, "#'   }")
+    s <- c(s, "#'")
+    s <- c(s, "#' @references TODO - references")
+    s <- c(s, "#'")
+    s <- c(s, "#' @export")
+    s <- c(s, "#' @examples")
+    s <- c(s, "#' # TODO - example")
+  }
+  
+  # combine text
+  ret <- paste(unlist(s), collapse = "\n")
+  
+  # copy to clipboard
+  clip <- pipe("pbcopy", "w")                       
+  write(ret, file = clip)                               
+  close(clip)
+  
+  # print text to console
+  cat(ret)
+}
+
+#------------------------------------------------
+#' @title Bin values in two dimensions
+#'
+#' @description Bin values in two dimensions based on a vector of breaks in each
+#'   dimension. Values are included in a bin if they are >= the left break and <
+#'   the right break. Default breaks are chosen to encompass all the data.
+#'
+#' @param x first dimension of values to bin
+#' @param y second dimension of values to bin
+#' @param x_breaks set of breaks in x-dimension
+#' @param y_breaks set of breaks in y-dimension
+#'
+#' @export
+
+bin_2d <- function(x, y, x_breaks = NULL, y_breaks = NULL) {
+  
+  # check inputs
+  assert_numeric(x)
+  assert_vector(x)
+  assert_numeric(y)
+  assert_vector(y)
+  assert_same_length(x, y)
+  if (is.null(x_breaks)) {
+    x_range <- buffer_range(min(x, na.rm = TRUE), max(x, na.rm = TRUE), buffer = 1.1)
+    x_breaks <- seq(x_range[1], x_range[2], l = 101)
+  }
+  if (is.null(y_breaks)) {
+    y_range <- buffer_range(min(y, na.rm = TRUE), max(y, na.rm = TRUE), buffer = 1.1)
+    y_breaks <- seq(y_range[1], y_range[2], l = 101)
+  }
+  assert_numeric(x_breaks)
+  assert_vector(x_breaks)
+  assert_numeric(y_breaks)
+  assert_vector(y_breaks)
+  
+  # get number of breaks in each dimension
+  nx <- length(x_breaks)
+  ny <- length(y_breaks)
+  
+  # create table of binned values
+  tb <- table(findInterval(x, x_breaks), findInterval(y, y_breaks))
+  
+  # convert to dataframe and force numeric
+  df <- as.data.frame(tb, stringsAsFactors = FALSE)
+  names(df) <- c("x", "y", "count")
+  df$x <- as.numeric(df$x)
+  df$y <- as.numeric(df$y)
+  
+  # subset to within breaks range
+  df <- subset(df, x > 0 & x < nx & y > 0 & y < ny)
+  
+  # fill in matrix
+  z <- matrix(0, ny-1, nx-1)
+  z[cbind(df$y, df$x)] <- df$count
+  
+  # return output as list
+  ret <- list(x_mids = midpoints(x_breaks),
+              y_mids = midpoints(y_breaks),
+              z = z)
+  return(ret)
+}
+
+#------------------------------------------------
+#' @title Find midpoints of a vector of breaks
+#'
+#' @description Find midpoints of a vector of breaks. The resulting vector will
+#'   have one less element than the input vector.
+#'
+#' @param x a vector of breaks
+#'
+#' @export
+
+midpoints <- function(x) {
+  return((x[-1] + x[-length(x)])/2)
+}
+
+#------------------------------------------------
+#' @title Expand range to include buffer
+#'
+#' @description Expand range to include buffer. The buffer distance is defined
+#'   as a proportion of the range.
+#'
+#' @param x_min minimum of starting range
+#' @param x_max maximum of starting range
+#' @param buffer the proportional increase in the starting range
+#'
+#' @export
+
+buffer_range <- function(x_min, x_max, buffer = 1.1) {
+  
+  # check inputs
+  assert_single_numeric(x_min)
+  assert_single_numeric(x_max)
+  assert_gr(x_max, x_min)
+  assert_single_pos(buffer, zero_allowed = FALSE)
+  
+  # create buffer range
+  x_range <- (x_max - x_min)
+  x_mid <- (x_max + x_min)/2
+  ret <- c(x_mid - x_range/2*buffer, x_mid + x_range/2*buffer)
+  
+  return(ret)
+}
+
+#------------------------------------------------
+#' @title Calculate pairwise great circle distance between points
+#'
+#' @description Analogue of the \code{dist()} function, but calculating great
+#'   circle distances. Points should be input as a two-column matrix or
+#'   dataframe with longitude in the first column and latitude in the second.
+#'
+#' @param x a two-column matrix or dataframe with longitude in the first column
+#'   and latitude in the second
+#'
+#' @export
+
+dist_gc <- function(x) {
+  
+  # check inputs
+  assert_ncol(x, 2)
+  
+  # calculate distance matrix
+  ret <- apply(x, 1, function(y) {lonlat_to_bearing(x[,1], x[,2], y[1], y[2])$gc_dist})
+  diag(ret) <- 0
+  
+  return(ret)
+}
+
+#------------------------------------------------
+#' @title Calculate great circle distance and bearing between coordinates
+#'
+#' @description Calculate great circle distance and bearing between spatial
+#'   coordinates.
+#'
+#' @param origin_lon the origin longitude
+#' @param origin_lat the origin latitude
+#' @param dest_lon the destination longitude
+#' @param dest_lat the destination latitude
+#' @param earth_rad the assumed radius of the earth (km)
+#'
+#' @export
+
+lonlat_to_bearing <- function(origin_lon, origin_lat, dest_lon, dest_lat, earth_rad = 6371) {
+  
+  # check inputs
+  assert_numeric(origin_lon)
+  assert_vector(origin_lon)
+  assert_numeric(origin_lat)
+  assert_vector(origin_lat)
+  assert_same_length(origin_lon, origin_lat)
+  assert_numeric(dest_lon)
+  assert_vector(dest_lon)
+  assert_numeric(dest_lat)
+  assert_vector(dest_lat)
+  assert_same_length(dest_lon, dest_lat)
+  assert_single_pos(earth_rad, zero_allowed = FALSE)
+  
+  # convert input arguments to radians
+  origin_lon <- origin_lon*2*pi/360
+  origin_lat <- origin_lat*2*pi/360
+  dest_lon <- dest_lon*2*pi/360
+  dest_lat <- dest_lat*2*pi/360
+  
+  delta_lon <- dest_lon - origin_lon
+  
+  # calculate bearing
+  bearing <- atan2(sin(delta_lon)*cos(dest_lat), cos(origin_lat)*sin(dest_lat)-sin(origin_lat)*cos(dest_lat)*cos(delta_lon))
+  
+  # calculate great circle angle. Use temporary variable to avoid acos(>1) or 
+  # acos(<0), which can happen due to underflow issues
+  tmp <- sin(origin_lat)*sin(dest_lat) + cos(origin_lat)*cos(dest_lat)*cos(delta_lon)
+  tmp <- ifelse(tmp > 1, 1, tmp)
+  tmp <- ifelse(tmp < 0, 0, tmp)
+  gc_angle <- acos(tmp)
+  
+  # convert bearing from radians to degrees measured clockwise from due north,
+  # and convert gc_angle to great circle distance via radius of earth (km)
+  bearing <- bearing*360/(2*pi)
+  bearing <- (bearing+360)%%360
+  gc_dist <- earth_rad*gc_angle
+  
+  # return list
+  ret <-list(bearing = bearing,
+             gc_dist = gc_dist)
   return(ret)
 }
