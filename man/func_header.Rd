@@ -11,6 +11,7 @@ func_header(type = 1)
 \itemize{
   \item{type = 1: basic header}
   \item{type = 2: complete header with all bells and whistles}
+  \item{type = 3: not included header}
 }}
 }
 \description{

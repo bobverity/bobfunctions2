@@ -125,6 +125,7 @@ header <- function(type = 1) {
 #'   \itemize{
 #'     \item{type = 1: basic header}
 #'     \item{type = 2: complete header with all bells and whistles}
+#'     \item{type = 3: not included header}
 #'   }
 #'
 #' @export
@@ -133,7 +134,7 @@ func_header <- function(type = 1) {
   
   # check inputs
   assert_single_int(type)
-  assert_in(type, 1:2)
+  assert_in(type, 1:3)
   
   # make type1 text list
   s <- list()
@@ -171,6 +172,12 @@ func_header <- function(type = 1) {
     s <- c(s, "#' @export")
     s <- c(s, "#' @examples")
     s <- c(s, "#' # TODO - example")
+  }
+  
+  if (type == 3) {
+    s <- c(s, "#------------------------------------------------")
+    s <- c(s, "# ")
+    s <- c(s, "#' @noRd")
   }
   
   # combine text
