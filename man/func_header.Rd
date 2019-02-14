@@ -8,10 +8,11 @@ func_header(type = 1)
 }
 \arguments{
 \item{type}{switches between the following text blocks:
-\itemize{
-  \item{type = 1: basic header}
-  \item{type = 2: complete header with all bells and whistles}
-  \item{type = 3: not included header}
+\enumerate{
+  \item basic function header
+  \item complete function header with all the bells and whistles
+  \item function not exported
+  \item S3 method, e.g. \code{print.my_class()}
 }}
 }
 \description{

@@ -95,12 +95,12 @@ header <- function(type = 1) {
   }
   
   # further shared text
+  s <- c(s, "# ------------------------------------------------------------------")
   s <- c(s, "")
   s <- c(s, "# load bobfunctions2 package. If not already installed this can be obtained from")
   s <- c(s, "# Github via the command devtools::install_github('bobverity/bobfunctions2')")
   s <- c(s, "library(bobfunctions2)")
   s <- c(s, "")
-  s <- c(s, "# ------------------------------------------------------------------")
   
   # combine text
   ret <- paste(unlist(s), collapse = "\n")
@@ -122,10 +122,11 @@ header <- function(type = 1) {
 #'   format.
 #'
 #' @param type switches between the following text blocks:
-#'   \itemize{
-#'     \item{type = 1: basic header}
-#'     \item{type = 2: complete header with all bells and whistles}
-#'     \item{type = 3: not included header}
+#'   \enumerate{
+#'     \item basic function header
+#'     \item complete function header with all the bells and whistles
+#'     \item function not exported
+#'     \item S3 method, e.g. \code{print.my_class()}
 #'   }
 #'
 #' @export
@@ -134,7 +135,7 @@ func_header <- function(type = 1) {
   
   # check inputs
   assert_single_int(type)
-  assert_in(type, 1:3)
+  assert_in(type, 1:4)
   
   # make type1 text list
   s <- list()
@@ -146,8 +147,10 @@ func_header <- function(type = 1) {
     s <- c(s, "#'")
     s <- c(s, "#' @details TODO - details")
     s <- c(s, "#'")
-    s <- c(s, "#' @param x TODO - parameter description")
+    s <- c(s, "#' @param x TODO - parameter description.")
     s <- c(s, "#'")
+    s <- c(s, "#' @import ggplot2")
+    s <- c(s, "#' @importFrom stats prcomp")
     s <- c(s, "#' @export")
   }
   
@@ -158,17 +161,49 @@ func_header <- function(type = 1) {
     s <- c(s, "#'")
     s <- c(s, "#' @description TODO - description")
     s <- c(s, "#'")
-    s <- c(s, "#' @details TODO - details")
+    s <- c(s, "#' @details TODO - details.")
     s <- c(s, "#'")
-    s <- c(s, "#' @param x TODO - parameter description")
-    s <- c(s, "#' @param y TODO - parameter description")
+    s <- c(s, "#' Character formatting:")
+    s <- c(s, "#' \\emph{italics}, \\strong{bold}, \\code{function(argument = value)}, \\pkg{package_name}")
+    s <- c(s, "#'")
+    s <- c(s, "#' Mathematics:")
+    s <- c(s, "#' \\eqn{a + b}: inline eqution, \\deqn{a + b}: display (block) equation")
+    s <- c(s, "#'")
+    s <- c(s, "#' Numbered list:")
+    s <- c(s, "#'   \\enumerate{")
+    s <- c(s, "#'     \\item First item")
+    s <- c(s, "#'     \\item Second item")
+    s <- c(s, "#'   }")
+    s <- c(s, "#'")
+    s <- c(s, "#' Bulleted list:")
     s <- c(s, "#'   \\itemize{")
-    s <- c(s, "#'     \\item{bullet 1 text}")
-    s <- c(s, "#'     \\item{bullet 2 text}")
+    s <- c(s, "#'     \\item First item")
+    s <- c(s, "#'     \\item Second item")
+    s <- c(s, "#'   }")
+    s <- c(s, "#'")
+    s <- c(s, "#' Named list:")
+    s <- c(s, "#'   \\describe{")
+    s <- c(s, "#'     \\item{One}{First item}")
+    s <- c(s, "#'     \\item{Two}{Second item}")
+    s <- c(s, "#'   }")
+    s <- c(s, "#'")
+    s <- c(s, "#' Links to other documentation:")
+    s <- c(s, "#' \\code{\\link{function}}: link to function in this package. \\code{\\link[MASS]{abbey}}: link to function in another package. \\link[=dest]{name}: link to dest, but show name. \\code{\\link[MASS:abbey]{name}}: link to function in another package, but show name. \\linkS4class{abc}: link to an S4 class.")
+    s <- c(s, "#'")
+    s <- c(s, "#' Links to the web:")
+    s <- c(s, "#' \\url{http://rstudio.com}. \\href{http://rstudio.com}{Rstudio}. \\email{hadley@@rstudio.com} (note the doubled @)")
+    s <- c(s, "#'")
+    s <- c(s, "#' @param x TODO - parameter description.")
+    s <- c(s, "#' @param y TODO - parameter description.")
+    s <- c(s, "#'   \\itemize{")
+    s <- c(s, "#'     \\item First item")
+    s <- c(s, "#'     \\item Second item")
     s <- c(s, "#'   }")
     s <- c(s, "#'")
     s <- c(s, "#' @references TODO - references")
     s <- c(s, "#'")
+    s <- c(s, "#' @import ggplot2")
+    s <- c(s, "#' @importFrom stats prcomp")
     s <- c(s, "#' @export")
     s <- c(s, "#' @examples")
     s <- c(s, "#' # TODO - example")
@@ -176,8 +211,15 @@ func_header <- function(type = 1) {
   
   if (type == 3) {
     s <- c(s, "#------------------------------------------------")
-    s <- c(s, "# ")
+    s <- c(s, "# TODO - simple description (for code purposes only)")
     s <- c(s, "#' @noRd")
+  }
+  
+  if (type == 4) {
+    s <- c(s, "#------------------------------------------------")
+    s <- c(s, "# TODO - simple description (for code purposes only)")
+    s <- c(s, "#' @method r_function clustom_class")
+    s <- c(s, "#' @export")
   }
   
   # combine text
