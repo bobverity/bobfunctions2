@@ -1,7 +1,15 @@
 
-# -----------------------------------
-# if NULL then replace with chosen value, otherwise keep original value
-#' @noRd
+#------------------------------------------------
+#' @title Replace with default values
+#'
+#' @description If NULL then replace with chosen value, otherwise keep original
+#'   value.
+#'
+#' @param x object to define default.
+#' @param default default value.
+#'
+#' @export
+
 define_default <- function(x, default) {
   if (is.null(x)) {
     return(default)
