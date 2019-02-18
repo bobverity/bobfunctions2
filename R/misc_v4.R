@@ -1,5 +1,16 @@
 
 # -----------------------------------
+# if NULL then replace with chosen value, otherwise keep original value
+#' @noRd
+define_default <- function(x, default) {
+  if (is.null(x)) {
+    return(default)
+  } else {
+    return(x)
+  }
+}
+
+# -----------------------------------
 # takes matrix as input, converts to list format for use within Rcpp code
 #' @noRd
 matrix_to_rcpp <- function(x) {
