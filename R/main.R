@@ -1,9 +1,7 @@
 
 #------------------------------------------------
-# define package imports
+# define basic package imports
 
-#' @importFrom RColorBrewer brewer.pal
-#' @importFrom grDevices colorRampPalette
 #' @import graphics
 #' @useDynLib bobfunctions2, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
@@ -440,4 +438,64 @@ layout_mat <- function(n) {
   } else {
     return(matrix(1:c^2, nrow = c, byrow = TRUE))
   }
+}
+
+#------------------------------------------------
+#' @title Get projection matrix
+#'
+#' @description Get projection matrix from \code{persp()} function without
+#'   producing plot. The angles of projection are given by \code{theta}
+#'   (rotation) and \code{phi} (elevation), and the strength of perspective
+#'   transformation is given by \code{d}.
+#'
+#' @param x_lim x-limits of \code{persp()} plot.
+#' @param y_lim y-limits of \code{persp()} plot.
+#' @param z_lim z-limits of \code{persp()} plot.
+#' @param theta angle of rotation (degrees).
+#' @param phi angle of elevation (degrees).
+#' @param d strength of perspective transformation.
+#'
+#' @importFrom grDevices dev.off jpeg
+#' @export
+
+get_projection <- function(x_lim, y_lim, z_lim, theta, phi, d) {
+  
+  # check inputs
+  assert_limit(x_lim)
+  assert_limit(y_lim)
+  assert_limit(z_lim)
+  assert_single_numeric(theta)
+  assert_single_numeric(phi)
+  assert_single_pos(d, zero_allowed = FALSE)
+  
+  # write perspective plot to temp file
+  jpeg(tempfile())
+  ret <- persp(matrix(0,2,2), xlim = x_lim, ylim = y_lim, zlim = z_lim, theta = theta, phi = phi, d = d)
+  dev.off()
+  
+  return(ret)
+}
+
+#------------------------------------------------
+#' @title Project 3D coordinates to 2D
+#'
+#' @description Use a projection matrix to transform 3D world coordinates to 2D
+#'   coordinates - for example reprenting a camera viewing a 3D scene. See
+#'   \code{get_projection()} for how to obtain a projection mtarix. This
+#'   function is equivalent to the \code{trans3d()} function, but also stores
+#'   depth information relative to the camera.
+#'
+#' @param x x- world coordinates.
+#' @param y y- world coordinates.
+#' @param z z- world coordinates.
+#' @param proj_mat 4*4 projection matrix, as returned from
+#'   \code{get_projection()}.
+#'
+#' @export
+
+project_2d <- function(x, y, z, proj_mat) {
+  tmp <- cbind(x,y,z,1) %*% proj_mat
+  ret <- as.data.frame(sweep(tmp, 1, tmp[,4], "/")[,-4])
+  names(ret) <- c("x", "y", "depth")
+  return(ret)
 }

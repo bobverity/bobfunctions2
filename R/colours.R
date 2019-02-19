@@ -31,9 +31,10 @@ col_plot <- function(x, size = 8) {
 #' @param n how many colours to return
 #' @param raw_cols vector of colours to interpolate
 #'
+#' @importFrom RColorBrewer brewer.pal
 #' @export
 
-more_colours <- function(n = 5, raw_cols = brewer.pal(10, "Paired")) {
+more_colours <- function(n = 5, raw_cols = RColorBrewer::brewer.pal(10, "Paired")) {
   
   # check inputs
   assert_single_pos_int(n, zero_allowed = FALSE)
@@ -79,6 +80,7 @@ more_colours <- function(n = 5, raw_cols = brewer.pal(10, "Paired")) {
 #'
 #' @param n the number of colours
 #'
+#' @importFrom grDevices colorRampPalette
 #' @export
 
 col_hotcold <- function(n = 6) {

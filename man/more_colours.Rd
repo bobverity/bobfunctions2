@@ -4,7 +4,7 @@
 \alias{more_colours}
 \title{Expand series of colours by interpolation}
 \usage{
-more_colours(n = 5, raw_cols = brewer.pal(10, "Paired"))
+more_colours(n = 5, raw_cols = RColorBrewer::brewer.pal(10, "Paired"))
 }
 \arguments{
 \item{n}{how many colours to return}
