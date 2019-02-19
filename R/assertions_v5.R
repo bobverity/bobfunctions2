@@ -56,9 +56,6 @@ assert_single <- function(x, message = "%s must be a single value", name = depar
   assert_non_null(x, name = name)
   assert_atomic(x, name = name)
   assert_length(x, 1, name = name)
-  if (!is.null(dim(x))) {
-    stop(sprintf(message, name), call. = FALSE)
-  }
   return(TRUE)
 }
 
@@ -525,6 +522,8 @@ assert_file_exists <- function(x, message = "file not found at path %s", name = 
 # x is increasing
 #' @noRd
 assert_increasing <- function(x, message = "%s must be increasing", name = deparse(substitute(x))) {
+  assert_non_null(x, name = name)
+  assert_numeric(x, name = name)
   if (!all.equal(x, sort(x))) {
     stop(sprintf(message, name), call. = FALSE)
   }
@@ -535,6 +534,8 @@ assert_increasing <- function(x, message = "%s must be increasing", name = depar
 # x is decreasing
 #' @noRd
 assert_decreasing <- function(x, message = "%s must be decreasing", name = deparse(substitute(x))) {
+  assert_non_null(x, name = name)
+  assert_numeric(x, name = name)
   if (!all.equal(x, sort(x, decreasing = TRUE))) {
     stop(sprintf(message, name), call. = FALSE)
   }

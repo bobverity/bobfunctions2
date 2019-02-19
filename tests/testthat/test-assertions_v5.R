@@ -1,4 +1,4 @@
-context("assertions_v4")
+context("assertions_v5")
 
 #------------------------------------------------
 test_that("nice_format working correctly", {
@@ -41,7 +41,7 @@ test_that("assert_single correctly", {
   expect_true(assert_single(TRUE))
   expect_true(assert_single(1))
   expect_true(assert_single("foo"))
-
+  
   expect_error(assert_single(NULL))
   expect_error(assert_single(1:5))
   expect_error(assert_single(list(0)))
@@ -195,6 +195,21 @@ test_that("assert_single_pos_int working correctly", {
 })
 
 #------------------------------------------------
+test_that("assert_single_bounded working correctly", {
+  expect_true(assert_single_bounded(0.5))
+  expect_true(assert_single_bounded(5, left = 0, right = 10))
+  expect_true(assert_single_bounded(0, inclusive_left = TRUE))
+  expect_true(assert_single_bounded(1, inclusive_right = TRUE))
+  
+  expect_error(assert_single_bounded(NULL))
+  expect_error(assert_single_bounded(1:5))
+  expect_error(assert_single_bounded(5))
+  expect_error(assert_single_bounded(0, inclusive_left = FALSE))
+  expect_error(assert_single_bounded(1, inclusive_right = FALSE))
+  expect_error(assert_single_bounded("foo"))
+})
+
+#------------------------------------------------
 test_that("assert_vector working correctly", {
   expect_true(assert_vector(1))
   expect_true(assert_vector(1:5))
@@ -246,6 +261,18 @@ test_that("assert_custom_class working correctly", {
   
   expect_error(assert_custom_class(NULL, "foo"))
   expect_error(assert_custom_class(data.frame(1:5), "foo"))
+})
+
+#------------------------------------------------
+test_that("assert_limit working correctly", {
+  expect_true(assert_limit(c(0,1)))
+  expect_true(assert_limit(c(-10,10)))
+  
+  expect_error(assert_limit(NULL))
+  expect_error(assert_limit(1:5))
+  expect_error(assert_limit(1))
+  expect_error(assert_limit(c(2,1)))
+  expect_error(assert_limit("foo"))
 })
 
 #------------------------------------------------
@@ -484,5 +511,27 @@ test_that("assert_noduplicates working correctly", {
   
   expect_error(assert_noduplicates(c(1,1,2)))
   expect_error(assert_noduplicates(c("foo", "bar", "foo")))
+})
+
+#------------------------------------------------
+test_that("assert_increasing working correctly", {
+  expect_true(assert_increasing(1))
+  expect_true(assert_increasing(rep(1,5)))
+  expect_true(assert_increasing(-5:5))
+  
+  expect_error(assert_increasing(NULL))
+  expect_error(assert_increasing(5:-5))
+  expect_error(assert_increasing("foo"))
+})
+
+#------------------------------------------------
+test_that("assert_decreasing working correctly", {
+  expect_true(assert_decreasing(1))
+  expect_true(assert_decreasing(rep(1,5)))
+  expect_true(assert_decreasing(5:-5))
+  
+  expect_error(assert_decreasing(NULL))
+  expect_error(assert_decreasing(-5:5))
+  expect_error(assert_decreasing("foo"))
 })
 
