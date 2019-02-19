@@ -13,7 +13,8 @@ LinkingTo: Rcpp
 Imports:
     RColorBrewer,
     Rcpp,
-    coda
+    coda,
+    ggplot2
 SystemRequirements: C++11
 Suggests: 
     testthat,

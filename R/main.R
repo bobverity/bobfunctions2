@@ -458,7 +458,7 @@ layout_mat <- function(n) {
 #' @importFrom grDevices dev.off jpeg
 #' @export
 
-get_projection <- function(x_lim, y_lim, z_lim, theta, phi, d) {
+get_projection <- function(x_lim, y_lim, z_lim, theta, phi, d = 2) {
   
   # check inputs
   assert_limit(x_lim)
@@ -470,7 +470,7 @@ get_projection <- function(x_lim, y_lim, z_lim, theta, phi, d) {
   
   # write perspective plot to temp file
   jpeg(tempfile())
-  ret <- persp(matrix(0,2,2), xlim = x_lim, ylim = y_lim, zlim = z_lim, theta = theta, phi = phi, d = d)
+  ret <- suppressWarnings(persp(matrix(0,2,2), xlim = x_lim, ylim = y_lim, zlim = z_lim, theta = theta, phi = phi, d = d))
   dev.off()
   
   return(ret)
@@ -495,7 +495,334 @@ get_projection <- function(x_lim, y_lim, z_lim, theta, phi, d) {
 
 project_2d <- function(x, y, z, proj_mat) {
   tmp <- cbind(x,y,z,1) %*% proj_mat
-  ret <- as.data.frame(sweep(tmp, 1, tmp[,4], "/")[,-4])
+  tmp <- sweep(tmp, 1, tmp[,4], "/")[, -4, drop = FALSE]
+  ret <- as.data.frame(tmp)
   names(ret) <- c("x", "y", "depth")
   return(ret)
+}
+
+#------------------------------------------------
+#' @title Project 3D line coordinates to 2D
+#'
+#' @description Use \code{project2D} to project start and end points from 3D
+#'   world coordinates to 2D screen coordinates.
+#'
+#' @param x0 x-coordinates of start.
+#' @param y0 y-coordinates of start.
+#' @param z0 z-coordinates of start.
+#' @param x1 x-coordinates of end.
+#' @param y1 y-coordinates of end.
+#' @param z1 z-coordinates of end.
+#' @param proj_mat 4*4 projection matrix, as returned from
+#'   \code{get_projection()}.
+#'
+#' @export
+
+project_2d_line <- function(x0, y0, z0, x1, y1, z1, proj_mat) {
+  
+  # project start and end points
+  point0 <- project_2d(x0, y0, z0, proj_mat)
+  point1 <- project_2d(x1, y1, z1, proj_mat)
+  
+  # make dataframe
+  ret <- data.frame(x0 = point0[,"x"], y0 = point0[,"y"], x1 = point1[,"x"], y1 = point1[,"y"])
+  
+  return(ret)
+}
+
+#------------------------------------------------
+#' @title Add grid lines to ggplot perspective plot
+#'
+#' @description Add grid lines to a ggplot perspective plot.
+#'
+#' @details The vectors \code{x}, \code{y}, and \code{z} together define the
+#'   locations and orientations of the lines. One of these vectors must be a
+#'   series of breaks, one must be a limit (i.e. a vector of two values) and one
+#'   must be a single value. For example, if \code{x = 1:5, y = c(-1,1), z = 3}
+#'   then lines will be drawn parallel to the y-axis at x-values 1:5, spanning a
+#'   range -1 to 1, and in the z-plane at position z = 3. If there are only two
+#'   breaks then it becomes impossible to determine which axis represents breaks
+#'   and which represents limits, hence the argument \code{break_axis} must be
+#'   specified (otherwise this is chosen automatically).
+#'
+#' @param myplot an object of class \code{ggplot}.
+#' @param x sequence of breaks \emph{or} a pair of start-end values \emph{or} a single value.
+#' @param y (see \code{x} parameter).
+#' @param z (see \code{x} parameter).
+#' @param proj_mat 4*4 projection matrix, as returned from
+#'   \code{get_projection()}.
+#' @param col line colour.
+#' @param size line size.
+#' @param break_axis which axis to apply breaks over. If \code{NULL} then chosen
+#'   automatically from other inputs, otherwise must be one of "x", "y" or "z".
+#'
+#' @export
+
+gg3d_add_grid_lines <- function(myplot, x = seq(0,1,0.1), y = c(0,1), z = 0, proj_mat, col = grey(0.8), size = 0.5, break_axis = NULL) {
+  
+  # check inputs
+  assert_custom_class(myplot, "ggplot")
+  assert_vector(x)
+  assert_increasing(x)
+  assert_vector(y)
+  assert_increasing(y)
+  assert_vector(z)
+  assert_increasing(z)
+  assert_matrix(proj_mat)
+  assert_numeric(proj_mat)
+  assert_dim(proj_mat, c(4,4))
+  
+  # attempt to set break_axis from other inputs
+  arg_lengths <- mapply(length, list(x,y,z))
+  if (is.null(break_axis)) {
+    if (!any(arg_lengths > 2)) {
+      stop("unable to set break_axis automatically due to ambiguous inputs. Need to set this argument manually to 'x', 'y' or 'z'")
+    }
+    break_axis <- c("x", "y", "z")[arg_lengths > 2]
+  }
+  assert_in(break_axis, c("x", "y", "z"))
+  
+  # work out which axis is planar, and which is orthogonal to the break axis
+  planar_axis <- setdiff(c("x", "y", "z")[arg_lengths == 1], break_axis)
+  orthog_axis <- setdiff(c("x", "y", "z"), c(break_axis, planar_axis))
+  
+  # check x,y,z lengths
+  switch (planar_axis,
+    "x" = assert_single_numeric(x),
+    "y" = assert_single_numeric(y),
+    "z" = assert_single_numeric(z)
+  )
+  switch (orthog_axis,
+    "x" = assert_limit(x),
+    "y" = assert_limit(y),
+    "z" = assert_limit(z)
+  )
+  
+  # calculate start and end points of lines in 2D projection
+  switch (orthog_axis,
+    "x" = plot_df <- project_2d_line(x[1], y, z, x[2], y, z, proj_mat),
+    "y" = plot_df <- project_2d_line(x, y[1], z, x, y[2], z, proj_mat),
+    "z" = plot_df <- project_2d_line(x, y, z[1], x, y, z[2], proj_mat)
+  )  
+  
+  # add to ggplot object
+  myplot <- myplot + geom_segment(aes_(x = ~x0, y = ~y0, xend = ~x1, yend = ~y1), col = col, size = size, data = plot_df)
+  
+  # return invisibly
+  invisible(myplot)
+}
+
+#------------------------------------------------
+#' @title Produce a 3D scatterplot in ggplot format
+#'
+#' @description Produce a 3D scatterplot in ggplot format.
+#'
+#' @param x vector of values in the x-dimension.
+#' @param y vector of values in the y-dimension.
+#' @param z vector of values in the z-dimension.
+#' @param colour vector specifying point colours. Can be continuous or discrete.
+#' @param size size of data points.
+#' @param theta angle of rotation (degrees).
+#' @param phi angle of elevation (degrees).
+#' @param d strength of perspective transformation.
+#' @param x_lim plotting limits in the x-dimension.
+#' @param y_lim plotting limits in the y-dimension.
+#' @param z_lim plotting limits in the z-dimension.
+#' @param x_grid sequence of x-breaks defining grid.
+#' @param y_grid sequence of y-breaks defining grid.
+#' @param z_grid sequence of z-breaks defining grid.
+#' @param z_type switch between horizontal grid in the z-dimension (\code{z_type
+#'   = 1}) and both horizontal and vertical grid (\code{z_type = 2}).
+#' @param flip_grid_x if \code{TRUE} then the vertical grid in the x-axis is
+#'   moved to the other side of the plot.
+#' @param flip_grid_y if \code{TRUE} then the vertical grid in the y-axis is
+#'   moved to the other side of the plot.
+#' @param grid_col the colour of grid lines.
+#' @param grid_size the size of grid lines.
+#' @param axis_col the colour of axis lines.
+#' @param axis_size the size of axis lines.
+#' @param x_lab the x-axis label.
+#' @param y_lab the y-axis label.
+#' @param z_lab the z-axis label.
+#' @param tick_length the absolute length of axis ticks.
+#' @param axis_lab_size the size of axis labels.
+#' @param axis_lab_dist the absolute distance of axis labels from the edge of
+#'   the plotting region.
+#'
+#' @importFrom grDevices grey
+#' @import ggplot2
+#' @export
+
+gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi = 30, d = 2, x_lim = NULL, y_lim = NULL, z_lim = NULL, x_grid = NULL, y_grid = NULL, z_grid = NULL, z_type = 2, flip_grid_x = FALSE, flip_grid_y = FALSE, grid_col = grey(0.8), grid_size = 0.25, axis_col = "black", axis_size = 0.5, x_lab = "x", y_lab = "y", z_lab = "z", tick_length = 0.2, axis_lab_size = 3, axis_lab_dist = 2) {
+  
+  # check inputs
+  assert_vector(x)
+  assert_numeric(x)
+  assert_vector(y)
+  assert_numeric(y)
+  assert_vector(z)
+  assert_numeric(z)
+  assert_single_pos(size)
+  assert_single_numeric(theta)
+  assert_single_numeric(phi)
+  assert_single_pos(d)
+  if (!is.null(x_lim)) {
+    assert_limit(x_lim)
+  }
+  if (!is.null(y_lim)) {
+    assert_limit(y_lim)
+  }
+  if (!is.null(z_lim)) {
+    assert_limit(z_lim)
+  }
+  if (!is.null(x_grid)) {
+    assert_vector(x_grid)
+    assert_numeric(x_grid)
+  }
+  if (!is.null(y_grid)) {
+    assert_vector(y_grid)
+    assert_numeric(y_grid)
+  }
+  if (!is.null(z_grid)) {
+    assert_vector(z_grid)
+    assert_numeric(z_grid)
+  }
+  assert_in(z_type, 1:2)
+  assert_single_logical(flip_grid_x)
+  assert_single_logical(flip_grid_y)
+  assert_single_pos(grid_size)
+  assert_single_pos(axis_size)
+  assert_single_pos(tick_length)
+  assert_single_pos(axis_lab_size)
+  assert_single_pos(axis_lab_dist)
+  
+  # get pretty breaks in each dimension
+  x_pretty <- pretty(x)
+  y_pretty <- pretty(y)
+  z_pretty <- pretty(z)
+  
+  # set default grid lines
+  x_grid <- define_default(x_grid, x_pretty)
+  y_grid <- define_default(y_grid, y_pretty)
+  z_grid <- define_default(z_grid, z_pretty)
+  
+  # set default limits
+  x_lim <- define_default(x_lim, range(x_grid))
+  y_lim <- define_default(y_lim, range(y_grid))
+  z_lim <- define_default(z_lim, range(z_grid))
+  
+  # get scaling factor in each dimension
+  max_scale <- max(diff(x_lim), diff(y_lim), diff(z_lim))
+  scale_factor <- c(diff(x_lim), diff(y_lim), diff(z_lim))/max_scale
+  
+  # get projection matrix
+  proj_mat <- get_projection(x_lim = x_lim/scale_factor[1], y_lim = y_lim/scale_factor[2], z_lim = z_lim/scale_factor[3], theta = theta, phi = phi, d = d)
+  
+  # produce basic plot
+  plot1 <- ggplot() + theme(panel.grid.major = element_blank(),
+                            panel.grid.minor = element_blank(),
+                            panel.background = element_blank(),
+                            axis.title.x = element_blank(),
+                            axis.text.x = element_blank(),
+                            axis.ticks.x = element_blank(),
+                            axis.title.y = element_blank(),
+                            axis.text.y = element_blank(),
+                            axis.ticks.y = element_blank())
+  
+  # choose where to put vertical planes
+  xv <- x_lim
+  if (flip_grid_x) {
+    xv <- rev(x_lim)
+  }
+  yv <- y_lim
+  if (flip_grid_y) {
+    yv <- rev(y_lim)
+  }
+  
+  # z-plane gridlines
+  plot1 <- gg3d_add_grid_lines(plot1, x = x_grid, y = y_lim, z = z_lim[1], proj_mat = proj_mat,
+                               col = grid_col, size = grid_size, break_axis = "x")
+  plot1 <- gg3d_add_grid_lines(plot1, x = x_lim, y = y_grid, z = z_lim[1], proj_mat = proj_mat,
+                               col = grid_col, size = grid_size, break_axis = "y")
+  
+  # x-plane gridlines
+  plot1 <- gg3d_add_grid_lines(plot1, x = x_lim, y = yv[1], z = z_grid, proj_mat = proj_mat,
+                               col = grid_col, size = grid_size, break_axis = "z")
+  if (z_type == 2) {
+    plot1 <- gg3d_add_grid_lines(plot1, x = x_grid, y = yv[1], z = z_lim, proj_mat = proj_mat,
+                                 col = grid_col, size = grid_size, break_axis = "x")
+  }
+  
+  # y-plane gridlines
+  plot1 <- gg3d_add_grid_lines(plot1, x = xv[1], y = y_lim, z = z_grid, proj_mat = proj_mat,
+                               col = grid_col, size = grid_size, break_axis = "z")
+  if (z_type == 2) {
+    plot1 <- gg3d_add_grid_lines(plot1, x = xv[1], y = y_grid, z = z_lim, proj_mat = proj_mat,
+                                 col = grid_col, size = grid_size, break_axis = "y")
+  }
+  
+  # add axis lines
+  plot1 <- gg3d_add_grid_lines(plot1, x = xv[1], y = y_lim, z = z_lim[1], proj_mat = proj_mat,
+                               col = axis_col, size = axis_size, break_axis = "x")
+  plot1 <- gg3d_add_grid_lines(plot1, x = x_lim, y = yv[1], z = z_lim[1], proj_mat = proj_mat,
+                               col = axis_col, size = axis_size, break_axis = "y")
+  plot1 <- gg3d_add_grid_lines(plot1, x = xv[1], y = yv[1], z = z_lim, proj_mat = proj_mat,
+                               col = axis_col, size = axis_size, break_axis = "x")
+  
+  # calculate tick lengths
+  delta_x <- tick_length
+  delta_y <- tick_length
+  delta_z <- -tick_length
+  
+  # choose where to put ticks
+  if (flip_grid_x) {
+    delta_x <- -delta_x
+  }
+  if (flip_grid_y) {
+    delta_y <- -delta_y
+  }
+  
+  # calculate tick lines
+  tick_x <- project_2d_line(x_grid, yv[2], z_lim[1], x_grid, yv[2] + delta_y, z_lim[1] + delta_z, proj_mat)
+  tick_y <- project_2d_line(xv[2], y_grid, z_lim[1], xv[2] + delta_x, y_grid, z_lim[1] + delta_z, proj_mat)
+  tick_z <- project_2d_line(xv[1], yv[2], z_grid, xv[1] - delta_x, yv[2] + delta_y, z_grid, proj_mat)
+  
+  # add ticks
+  tick_all <- rbind(tick_x, tick_y, tick_z)
+  plot1 <- plot1 + geom_segment(aes_(x = ~x0, y = ~y0, xend = ~x1, yend = ~y1), col = grey(0.8), size = 0.25, data = tick_all)
+  
+  # calculate tick text positions
+  tick_text_x <- project_2d(x_grid, yv[2] + delta_y*1.5, z_lim[1] + delta_z*1.5, proj_mat)
+  tick_text_x$label <- x_grid
+  tick_text_y <- project_2d(xv[2] + delta_x*1.5, y_grid, z_lim[1] + delta_z*1.5, proj_mat)
+  tick_text_y$label <- y_grid
+  tick_text_z <- project_2d(xv[1] - delta_x*1.5, yv[2] + delta_y*1.5, z_grid, proj_mat)
+  tick_text_z$label <- z_grid
+  
+  # add tick text
+  plot1 <- plot1 + geom_text(aes_(x = ~x, y = ~y, label = ~label), size = 2, data = tick_text_x)
+  plot1 <- plot1 + geom_text(aes_(x = ~x, y = ~y, label = ~label), size = 2, data = tick_text_y)
+  plot1 <- plot1 + geom_text(aes_(x = ~x, y = ~y, label = ~label), size = 2, data = tick_text_z)
+  
+  # calculate axis label positions
+  axis_text_x <- project_2d(mean(x_lim), yv[2] + axis_lab_dist, z_lim[1], proj_mat)
+  axis_text_x$label <- x_lab
+  axis_text_y <- project_2d(xv[2] + axis_lab_dist, mean(y_lim), z_lim[1], proj_mat)
+  axis_text_y$label <- y_lab
+  axis_text_z <- project_2d(xv[1], yv[2] + axis_lab_dist, mean(z_lim), proj_mat)
+  axis_text_z$label <- z_lab
+  
+  # add axis labels
+  plot1 <- plot1 + geom_text(aes_(x = ~x, y = ~y, label = ~label), size = axis_lab_size, data = axis_text_x)
+  plot1 <- plot1 + geom_text(aes_(x = ~x, y = ~y, label = ~label), size = axis_lab_size, data = axis_text_y)
+  plot1 <- plot1 + geom_text(aes_(x = ~x, y = ~y, label = ~label), size = axis_lab_size, data = axis_text_z)
+  
+  # convert data coordinates
+  data_df <- project_2d(x, y, z, proj_mat)
+  data_df$col <- colour
+  data_df <- data_df[order(data_df$depth, decreasing = FALSE),]
+  
+  # add data
+  plot1 <- plot1 + geom_point(aes_(x = ~x, y = ~y, col = ~col), size = 1.5, data = data_df)
+  
 }

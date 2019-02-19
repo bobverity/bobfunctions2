@@ -4,7 +4,7 @@
 \alias{get_projection}
 \title{Get projection matrix}
 \usage{
-get_projection(x_lim, y_lim, z_lim, theta, phi, d)
+get_projection(x_lim, y_lim, z_lim, theta, phi, d = 2)
 }
 \arguments{
 \item{x_lim}{x-limits of \code{persp()} plot.}
