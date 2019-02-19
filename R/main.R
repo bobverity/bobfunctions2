@@ -823,6 +823,6 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
   data_df <- data_df[order(data_df$depth, decreasing = FALSE),]
   
   # add data
-  plot1 <- plot1 + geom_point(aes_(x = ~x, y = ~y, col = ~col), size = 1.5, data = data_df)
+  plot1 <- plot1 + geom_point(aes_(x = ~x, y = ~y, col = ~col), size = size, data = data_df)
   
 }
