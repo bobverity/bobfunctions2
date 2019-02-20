@@ -639,8 +639,12 @@ gg3d_add_grid_lines <- function(myplot, x = seq(0,1,0.1), y = c(0,1), z = 0, pro
 #'   moved to the other side of the plot.
 #' @param grid_col the colour of grid lines.
 #' @param grid_size the size of grid lines.
+#' @param axis_on whether to draw axis lines.
 #' @param axis_col the colour of axis lines.
 #' @param axis_size the size of axis lines.
+#' @param zero_line_on whether to draw lines at zero in every dimension.
+#' @param zero_line_col the colour of zero lines.
+#' @param zero_line_size the size of zero lines.
 #' @param x_lab the x-axis label.
 #' @param y_lab the y-axis label.
 #' @param z_lab the z-axis label.
@@ -653,7 +657,7 @@ gg3d_add_grid_lines <- function(myplot, x = seq(0,1,0.1), y = c(0,1), z = 0, pro
 #' @import ggplot2
 #' @export
 
-gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi = 30, d = 2, x_lim = NULL, y_lim = NULL, z_lim = NULL, x_grid = NULL, y_grid = NULL, z_grid = NULL, z_type = 2, flip_grid_x = FALSE, flip_grid_y = FALSE, grid_col = grey(0.8), grid_size = 0.25, axis_col = "black", axis_size = 0.5, x_lab = "x", y_lab = "y", z_lab = "z", tick_length = 0.2, axis_lab_size = 3, axis_lab_dist = 2) {
+gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi = 30, d = 2, x_lim = NULL, y_lim = NULL, z_lim = NULL, x_grid = NULL, y_grid = NULL, z_grid = NULL, z_type = 2, flip_grid_x = FALSE, flip_grid_y = FALSE, grid_col = grey(0.8), grid_size = 0.25, zero_line_on = TRUE, zero_line_col = grey(0.8), zero_line_size = 0.6, axis_on = FALSE, axis_col = "black", axis_size = 0.5, x_lab = "x", y_lab = "y", z_lab = "z", tick_length = 0.2, axis_lab_size = 3, axis_lab_dist = 2) {
   
   # check inputs
   assert_vector(x)
@@ -691,7 +695,10 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
   assert_single_logical(flip_grid_x)
   assert_single_logical(flip_grid_y)
   assert_single_pos(grid_size)
+  assert_single_logical(axis_on)
   assert_single_pos(axis_size)
+  assert_single_logical(zero_line_on)
+  assert_single_pos(zero_line_size)
   assert_single_pos(tick_length)
   assert_single_pos(axis_lab_size)
   assert_single_pos(axis_lab_dist)
@@ -701,15 +708,27 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
   y_pretty <- pretty(y)
   z_pretty <- pretty(z)
   
-  # set default grid lines
-  x_grid <- define_default(x_grid, x_pretty)
-  y_grid <- define_default(y_grid, y_pretty)
-  z_grid <- define_default(z_grid, z_pretty)
-  
   # set default limits
-  x_lim <- define_default(x_lim, range(x_grid))
-  y_lim <- define_default(y_lim, range(y_grid))
-  z_lim <- define_default(z_lim, range(z_grid))
+  x_lim <- define_default(x_lim, range(x_pretty))
+  y_lim <- define_default(y_lim, range(y_pretty))
+  z_lim <- define_default(z_lim, range(z_pretty))
+  
+  # set default grid lines
+  if (is.null(x_grid)) {
+    delta_x <- x_pretty[2]-x_pretty[1]
+    x_grid <- seq(floor(x_lim[1]/delta_x)*delta_x, ceiling(x_lim[2]/delta_x)*delta_x, delta_x)
+    x_grid <- x_grid[x_grid >= x_lim[1] & x_grid <= x_lim[2]]
+  }
+  if (is.null(y_grid)) {
+    delta_y <- y_pretty[2]-y_pretty[1]
+    y_grid <- seq(floor(y_lim[1]/delta_y)*delta_y, ceiling(y_lim[2]/delta_y)*delta_y, delta_y)
+    y_grid <- y_grid[y_grid >= y_lim[1] & y_grid <= y_lim[2]]
+  }
+  if (is.null(z_grid)) {
+    delta_z <- z_pretty[2]-z_pretty[1]
+    z_grid <- seq(floor(z_lim[1]/delta_z)*delta_z, ceiling(z_lim[2]/delta_z)*delta_z, delta_z)
+    z_grid <- z_grid[z_grid >= z_lim[1] & z_grid <= z_lim[2]]
+  }
   
   # get scaling factor in each dimension
   max_scale <- max(diff(x_lim), diff(y_lim), diff(z_lim))
@@ -761,13 +780,31 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
                                  col = grid_col, size = grid_size, break_axis = "y")
   }
   
+  # add zero lines
+  if (zero_line_on) {
+    plot1 <- gg3d_add_grid_lines(plot1, x = 0, y = y_lim, z = z_lim[1], proj_mat = proj_mat,
+                                 col = zero_line_col, size = zero_line_size, break_axis = "x")
+    plot1 <- gg3d_add_grid_lines(plot1, x = 0, y = yv[1], z = z_lim, proj_mat = proj_mat,
+                                 col = zero_line_col, size = zero_line_size, break_axis = "y")
+    plot1 <- gg3d_add_grid_lines(plot1, x = x_lim, y = 0, z = z_lim[1], proj_mat = proj_mat,
+                                 col = zero_line_col, size = zero_line_size, break_axis = "y")
+    plot1 <- gg3d_add_grid_lines(plot1, x = xv[1], y = 0, z = z_lim, proj_mat = proj_mat,
+                                 col = zero_line_col, size = zero_line_size, break_axis = "x")
+    plot1 <- gg3d_add_grid_lines(plot1, x = xv[1], y = y_lim, z = 0, proj_mat = proj_mat,
+                                 col = zero_line_col, size = zero_line_size, break_axis = "z")
+    plot1 <- gg3d_add_grid_lines(plot1, x = x_lim, y = yv[1], z = 0, proj_mat = proj_mat,
+                                 col = zero_line_col, size = zero_line_size, break_axis = "z")
+  }
+  
   # add axis lines
-  plot1 <- gg3d_add_grid_lines(plot1, x = xv[1], y = y_lim, z = z_lim[1], proj_mat = proj_mat,
-                               col = axis_col, size = axis_size, break_axis = "x")
-  plot1 <- gg3d_add_grid_lines(plot1, x = x_lim, y = yv[1], z = z_lim[1], proj_mat = proj_mat,
-                               col = axis_col, size = axis_size, break_axis = "y")
-  plot1 <- gg3d_add_grid_lines(plot1, x = xv[1], y = yv[1], z = z_lim, proj_mat = proj_mat,
-                               col = axis_col, size = axis_size, break_axis = "x")
+  if (axis_on) {
+    plot1 <- gg3d_add_grid_lines(plot1, x = xv[1], y = y_lim, z = z_lim[1], proj_mat = proj_mat,
+                                 col = axis_col, size = axis_size, break_axis = "x")
+    plot1 <- gg3d_add_grid_lines(plot1, x = x_lim, y = yv[1], z = z_lim[1], proj_mat = proj_mat,
+                                 col = axis_col, size = axis_size, break_axis = "y")
+    plot1 <- gg3d_add_grid_lines(plot1, x = xv[1], y = yv[1], z = z_lim, proj_mat = proj_mat,
+                                 col = axis_col, size = axis_size, break_axis = "x")
+  }
   
   # calculate tick lengths
   delta_x <- tick_length
@@ -825,4 +862,6 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
   # add data
   plot1 <- plot1 + geom_point(aes_(x = ~x, y = ~y, col = ~col), size = size, data = data_df)
   
+  # return plotting object
+  return(plot1)
 }

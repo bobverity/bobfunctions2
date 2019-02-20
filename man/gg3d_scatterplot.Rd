@@ -8,9 +8,10 @@ gg3d_scatterplot(x, y, z, colour = 1, size = 0.5, theta = 135,
   phi = 30, d = 2, x_lim = NULL, y_lim = NULL, z_lim = NULL,
   x_grid = NULL, y_grid = NULL, z_grid = NULL, z_type = 2,
   flip_grid_x = FALSE, flip_grid_y = FALSE, grid_col = grey(0.8),
-  grid_size = 0.25, axis_col = "black", axis_size = 0.5,
-  x_lab = "x", y_lab = "y", z_lab = "z", tick_length = 0.2,
-  axis_lab_size = 3, axis_lab_dist = 2)
+  grid_size = 0.25, zero_line_on = TRUE, zero_line_col = grey(0.8),
+  zero_line_size = 0.6, axis_on = FALSE, axis_col = "black",
+  axis_size = 0.5, x_lab = "x", y_lab = "y", z_lab = "z",
+  tick_length = 0.2, axis_lab_size = 3, axis_lab_dist = 2)
 }
 \arguments{
 \item{x}{vector of values in the x-dimension.}
@@ -53,6 +54,14 @@ moved to the other side of the plot.}
 \item{grid_col}{the colour of grid lines.}
 
 \item{grid_size}{the size of grid lines.}
+
+\item{zero_line_on}{whether to draw lines at zero in every dimension.}
+
+\item{zero_line_col}{the colour of zero lines.}
+
+\item{zero_line_size}{the size of zero lines.}
+
+\item{axis_on}{whether to draw axis lines.}
 
 \item{axis_col}{the colour of axis lines.}
 
