@@ -865,3 +865,44 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
   # return plotting object
   return(plot1)
 }
+
+#------------------------------------------------
+#' @title Add inset plot to faceted ggplot
+#'
+#' @description Ordinarily ggplot is not setup to add inset plots (annotations) to faceted plots, because it wants to add the same inset to every facet. This custom annotation function makes it possible to add an inset to a single facet. Credit goes to \href{https://stackoverflow.com/users/471093/baptiste}{baptiste} for \href{https://stackoverflow.com/questions/37867758/insetting-on-facet-grided-and-grid-arrangeed-plot}{this} solution.
+#'
+#' @param grob a ggplot object.
+#' @param xmin inset starts at this coordinate. Set to \code{-Inf} to always
+#'   start from far left edge.
+#' @param xmax inset ends at this coordinate. Set to \code{Inf} to always start
+#'   from far right edge.
+#' @param ymin inset starts at this coordinate. Set to \code{-Inf} to always
+#'   start from far bottom edge.
+#' @param ymax inset ends at this coordinate. Set to \code{Inf} to always start
+#'   from far top edge.
+#' @param data dataframe, should specify the value of the variable with which
+#'   the original plot is facetted (see examples).
+#'
+#' @import ggplot2
+#' @export
+#' @examples
+#' # produce main plot and inset plot
+#' plot_df <- data.frame(x = rnorm(1e3), y = rnorm(1e3), group = 1:2)
+#' plot_main <- ggplot2::ggplot() +
+#'              ggplot2::geom_point(ggplot2::aes(x = x, y = y), data = plot_df) +
+#'              ggplot2::facet_wrap(~group)
+#' plot_inset <- ggplot2::qplot(rnorm(1e3))
+#' 
+#' # use gg_inset to annotate first panel only
+#' plot_combined <- plot_main + gg_inset(ggplot2::ggplotGrob(plot_inset), data = data.frame(group = 1),
+#'                                       xmin = -Inf, xmax = 1.5, ymin = 0.6, ymax = Inf)
+#' 
+#' plot_combined
+
+gg_inset <- function (grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, data) {
+  layer(data = data, stat = StatIdentity, position = PositionIdentity, 
+        geom = ggplot2::GeomCustomAnn,
+        inherit.aes = TRUE, params = list(grob = grob, 
+                                          xmin = xmin, xmax = xmax, 
+                                          ymin = ymin, ymax = ymax))
+}
