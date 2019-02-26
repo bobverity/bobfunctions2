@@ -906,3 +906,70 @@ gg_inset <- function (grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, da
                                           xmin = xmin, xmax = xmax, 
                                           ymin = ymin, ymax = ymax))
 }
+
+#------------------------------------------------
+#' @title Convert DNA sequence to amino-acid
+#'
+#' @description Convert three-letter sequence of ATGC to corrseponding
+#'   translated amino-adid sequence. Amino-acids can be reported in full name or
+#'   single-letter code. Function is most efficient when using a vector of
+#'   sequences.
+#'
+#' @param x three-letter character sequence of A, T, G and C.
+#' @param output_format 1 for full name, 2 for single-letter code.
+#'
+#' @export
+
+dna_to_aa <- function(x, output_format = 1) {
+  
+  v1 <- c("TTT", "TTC", "TTA", "TTG", "TCT", "TCC", "TCA", "TCG", "TAT", 
+          "TAC", "TAA", "TAG", "TGT", "TGC", "TGA", "TGG", "CTT", "CTC", 
+          "CTA", "CTG", "CCT", "CCC", "CCA", "CCG", "CAT", "CAC", "CAA", 
+          "CAG", "CGT", "CGC", "CGA", "CGG", "ATT", "ATC", "ATA", "ATG", 
+          "ACT", "ACC", "ACA", "ACG", "AAT", "AAC", "AAA", "AAG", "AGT", 
+          "AGC", "AGA", "AGG", "GTT", "GTC", "GTA", "GTG", "GCT", "GCC", 
+          "GCA", "GCG", "GAT", "GAC", "GAA", "GAG", "GGT", "GGC", "GGA", 
+          "GGG")
+  
+  if (output_format == 1) {
+    v2 <- c("phe", "phe", "leu", "leu",
+            "ser", "ser", "ser", "ser",
+            "tyr", "tyr", "STOP", "STOP",
+            "cys", "cys", "STOP", "trp",
+            "leu", "leu", "leu", "leu",
+            "pro", "pro", "pro", "pro",
+            "his", "his", "gln", "gln",
+            "arg", "arg", "arg", "arg",
+            "ile", "ile", "ile", "met",
+            "thr", "thr", "thr", "thr",
+            "asn", "asn", "lys", "lys",
+            "ser", "ser", "arg", "arg",
+            "val", "val", "val", "val",
+            "ala", "ala", "ala", "ala",
+            "asp", "asp", "glu", "glu",
+            "gly", "gly", "gly", "gly")
+  } else {
+    v2 <- c("F", "F", "L", "L",
+            "S", "S", "S", "S",
+            "Y", "Y", "*", "*",
+            "C", "C", "*", "W",
+            "L", "L", "L", "L",
+            "P", "P", "P", "P",
+            "H", "H", "Q", "Q",
+            "R", "R", "R", "R",
+            "I", "I", "I", "M",
+            "T", "T", "T", "T",
+            "N", "N", "K", "K",
+            "S", "S", "R", "R",
+            "V", "V", "V", "V",
+            "A", "A", "A", "A",
+            "D", "D", "E", "E",
+            "G", "G", "G", "G")
+  }
+  
+  # get return sequence
+  ret <- v2[match(x, v1)]
+  
+  return(ret)
+}
+
