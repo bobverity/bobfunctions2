@@ -4,8 +4,7 @@
 \alias{sim_wrightfisher}
 \title{Simulate from simple Wright-Fisher model}
 \usage{
-sim_wrightfisher(N, L, alleles, mu, m_matrix, t_max, t_report = t_max,
-  output_format = 3)
+sim_wrightfisher(N, L, alleles, mu, m_matrix, t_out, output_format = 3)
 }
 \arguments{
 \item{N}{number of individuals per deme - currently must be the same for all
@@ -23,10 +22,7 @@ mutating from any allele to any other.}
 an individual migrating from any deme (in rows) to any other deme (in
 columns).}
 
-\item{t_max}{number of generations to run simulation for.}
-
-\item{t_report}{vector of integer time values at which results will be
-reported.}
+\item{t_out}{vector of times at which results will be output.}
 
 \item{output_format}{choose the output format. 1 = counts, 2 = list of
 genotypes over demes, 3 = matrix of genotypes over demes.}

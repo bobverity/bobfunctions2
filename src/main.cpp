@@ -43,13 +43,12 @@ Rcpp::List sim_wrightfisher_cpp(Rcpp::List args, Rcpp::List args_functions, Rcpp
   vector<int> alleles = rcpp_to_vector_int(args("alleles"));
   double mu = rcpp_to_double(args("mu"));
   vector<vector<double>> m_matrix = rcpp_to_matrix_double(args("m_matrix"));
-  int t_max = rcpp_to_int(args("t_max"));
-  vector<int> t_report = rcpp_to_vector_int(args("t_report"));
-  int t_report_size = t_report.size();
+  vector<int> t_out = rcpp_to_vector_int(args("t_out"));
+  int n_t_out = t_out.size();
   Rcpp::Function update_progress = args_functions["update_progress"];
   
   // objects for storing results
-  vector<vector<vector<vector<int>>>> pop_store(t_report_size);
+  vector<vector<vector<vector<int>>>> pop_store(n_t_out);
   
   // initialise populations
   vector<vector<vector<int>>> pop(K);
@@ -75,11 +74,11 @@ Rcpp::List sim_wrightfisher_cpp(Rcpp::List args, Rcpp::List args_functions, Rcpp
   vector<int> pair_vec = seq_int(0,n_pair-1);
   
   // loop through generations
-  int t_report_next = 0;
-  for (int t=0; t<t_max; ++t) {
+  int t_out_next = 0;
+  for (int t=0; t<max(t_out); ++t) {
     
     // report progress
-    update_progress(args_progress, "pb", t, t_max-1);
+    update_progress(args_progress, "pb", t, max(t_out)-1);
     
     // loop through demes and loci
     for (int k=0; k<K; ++k) {
@@ -172,10 +171,10 @@ Rcpp::List sim_wrightfisher_cpp(Rcpp::List args, Rcpp::List args_functions, Rcpp
     }
     
     // store result
-    if ((t+1) == t_report[t_report_next]) {
-      pop_store[t_report_next] = pop;
-      if (t_report_next < (t_report_size-1)) {
-        t_report_next++;
+    if ((t+1) == t_out[t_out_next]) {
+      pop_store[t_out_next] = pop;
+      if (t_out_next < (n_t_out-1)) {
+        t_out_next++;
       }
     }
     

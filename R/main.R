@@ -995,16 +995,14 @@ dna_to_aa <- function(x, output_format = 1) {
 #' @param m_matrix migration matrix specifying the per-generation probability of
 #'   an individual migrating from any deme (in rows) to any other deme (in
 #'   columns).
-#' @param t_max number of generations to run simulation for.
-#' @param t_report vector of integer time values at which results will be
-#'   reported.
+#' @param t_out vector of times at which results will be output.
 #' @param output_format choose the output format. 1 = counts, 2 = list of
 #'   genotypes over demes, 3 = matrix of genotypes over demes.
 #'
 #' @importFrom utils txtProgressBar
 #' @export
 
-sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_max, t_report = t_max, output_format = 3) {
+sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_out, output_format = 3) {
   
   # check inputs
   assert_vector(N)
@@ -1023,10 +1021,8 @@ sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_max, t_report = t_ma
   if (!all(rowSums(m_matrix) == 1)) {
     stop("every row of m_matrix must sum to 1")
   }
-  assert_single_pos_int(t_max, zero_allowed = FALSE)
-  assert_vector(t_report)
-  assert_pos_int(t_report, zero_allowed = FALSE)
-  assert_leq(t_report, t_max)
+  assert_vector(t_out)
+  assert_pos_int(t_out, zero_allowed = FALSE)
   assert_in(output_format, 1:3)
   
   # process some inputs
@@ -1042,11 +1038,10 @@ sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_max, t_report = t_ma
                alleles = alleles,
                mu = mu,
                m_matrix = matrix_to_rcpp(m_matrix),
-               t_max = t_max,
-               t_report = t_report)
+               t_out = t_out)
   
   # create progress bars
-  pb <- txtProgressBar(min = 0, max = t_max-1, initial = NA, style = 3)
+  pb <- txtProgressBar(min = 0, max = max(t_out)-1, initial = NA, style = 3)
   args_progress <- list(pb = pb)
   
   # functions to pass to C++
@@ -1065,8 +1060,8 @@ sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_max, t_report = t_ma
     }, 1:L, t = t, SIMPLIFY = FALSE)
     names(ret) <- paste0("locus", 1:length(ret))
     return(ret)
-  }, 1:length(t_report), SIMPLIFY = FALSE)
-  names(output_processed) <- paste0("t", t_report)
+  }, 1:length(t_out), SIMPLIFY = FALSE)
+  names(output_processed) <- paste0("t", t_out)
   
   # format 2
   if (output_format %in% c(2,3)) {
@@ -1081,8 +1076,8 @@ sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_max, t_report = t_ma
       }, 1:K, t = t, SIMPLIFY = FALSE)
       names(ret) <- paste0("deme", 1:K)
       return(ret)
-    }, 1:length(t_report), SIMPLIFY = FALSE)
-    names(output_processed) <- paste0("time", t_report)
+    }, 1:length(t_out), SIMPLIFY = FALSE)
+    names(output_processed) <- paste0("time", t_out)
     
   }
   
@@ -1095,7 +1090,7 @@ sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_max, t_report = t_ma
       colnames(ret)[1] <- "deme"
       return(ret)
     }, output_processed, SIMPLIFY = FALSE)
-    names(output_processed) <- paste0("time", t_report)
+    names(output_processed) <- paste0("time", t_out)
     
   }
   
