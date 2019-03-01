@@ -973,3 +973,132 @@ dna_to_aa <- function(x, output_format = 1) {
   return(ret)
 }
 
+#------------------------------------------------
+#' @title Simulate from simple Wright-Fisher model
+#'
+#' @description Simulate Wright-Fisher evolution. The model used here is
+#'   currently very basic and makes a number of simplifying assumptions, but may
+#'   be extended in future to add flexibility.
+#'
+#' @details Currently assumes haploid population and independent loci (no
+#'   linkage disequilibrium). Initialises from symmetric Dirichlet(1) allele
+#'   frequencies at every locus. Due to the way migration is currently
+#'   implemented, \code{N} must be the same for all demes.
+#'
+#' @param N number of individuals per deme - currently must be the same for all
+#'   demes.
+#' @param L number of loci.
+#' @param alleles number of alleles. Can be single number for all loci, or
+#'   vector of length \code{L}.
+#' @param mu mutation rate. Assumes finite-alleles model, with equal chance of
+#'   mutating from any allele to any other.
+#' @param m_matrix migration matrix specifying the per-generation probability of
+#'   an individual migrating from any deme (in rows) to any other deme (in
+#'   columns).
+#' @param t_max number of generations to run simulation for.
+#' @param t_report vector of integer time values at which results will be
+#'   reported.
+#' @param output_format choose the output format. 1 = counts, 2 = list of
+#'   genotypes over demes, 3 = matrix of genotypes over demes.
+#'
+#' @importFrom utils txtProgressBar
+#' @export
+
+sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_max, t_report = t_max, output_format = 3) {
+  
+  # check inputs
+  assert_vector(N)
+  assert_pos_int(N, zero_allowed = FALSE)
+  if (any(N != N[1])) {
+    stop("due to the way migration is implemented, the model is currently limited to using the same number of individuals in every deme")
+  }
+  assert_single_pos_int(L, zero_allowed = FALSE)
+  assert_vector(alleles)
+  assert_pos_int(alleles, zero_allowed = FALSE)
+  assert_gr(alleles, 1)
+  assert_single_bounded(mu)
+  assert_symmetric_matrix(m_matrix)
+  assert_dim(m_matrix, rep(length(N),2))
+  assert_bounded(m_matrix)
+  if (!all(rowSums(m_matrix) == 1)) {
+    stop("every row of m_matrix must sum to 1")
+  }
+  assert_single_pos_int(t_max, zero_allowed = FALSE)
+  assert_vector(t_report)
+  assert_pos_int(t_report, zero_allowed = FALSE)
+  assert_leq(t_report, t_max)
+  assert_in(output_format, 1:3)
+  
+  # process some inputs
+  if (length(alleles) == 1) {
+    alleles <- rep(alleles, L)
+  }
+  assert_length(alleles, L)
+  K <- length(N)
+  
+  # make argument list
+  args <- list(N = N,
+               L = L,
+               alleles = alleles,
+               mu = mu,
+               m_matrix = matrix_to_rcpp(m_matrix),
+               t_max = t_max,
+               t_report = t_report)
+  
+  # create progress bars
+  pb <- txtProgressBar(min = 0, max = t_max-1, initial = NA, style = 3)
+  args_progress <- list(pb = pb)
+  
+  # functions to pass to C++
+  args_functions <- list(update_progress = update_progress)
+  
+  # run efficient C++ function
+  output_raw <- sim_wrightfisher_cpp(args, args_functions, args_progress)
+  
+  # process results
+  output_processed <- mapply(function(t) {
+    ret <- mapply(function(i, t) {
+      ret <- t(mapply(function(x) x[[i]], output_raw$pop[[t]]))
+      colnames(ret) <- paste0("a", 1:ncol(ret))
+      rownames(ret) <- paste0("deme", 1:nrow(ret))
+      return(ret)
+    }, 1:L, t = t, SIMPLIFY = FALSE)
+    names(ret) <- paste0("locus", 1:length(ret))
+    return(ret)
+  }, 1:length(t_report), SIMPLIFY = FALSE)
+  names(output_processed) <- paste0("t", t_report)
+  
+  # format 2
+  if (output_format %in% c(2,3)) {
+    
+    output_processed <- mapply(function(t) {
+      ret <- mapply(function(k,t) {
+        ret <- mapply(function(x,k) {
+          sample(rep(1:ncol(x), times = x[k,]))
+        }, output_processed[[t]], k = k)
+        rownames(ret) <- paste0("ind", 1:nrow(ret))
+        return(ret)
+      }, 1:K, t = t, SIMPLIFY = FALSE)
+      names(ret) <- paste0("deme", 1:K)
+      return(ret)
+    }, 1:length(t_report), SIMPLIFY = FALSE)
+    names(output_processed) <- paste0("time", t_report)
+    
+  }
+  
+  # format 3
+  if (output_format == 3) {
+    
+    output_processed <- mapply(function(x) {
+      ret <- do.call(rbind, x)
+      ret <- cbind(rep(1:length(x), times = mapply(nrow, x)), ret)
+      colnames(ret)[1] <- "deme"
+      return(ret)
+    }, output_processed, SIMPLIFY = FALSE)
+    names(output_processed) <- paste0("time", t_report)
+    
+  }
+  
+  return(output_processed)
+}
+

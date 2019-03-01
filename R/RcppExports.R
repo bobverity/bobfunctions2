@@ -5,3 +5,7 @@ dummy1_cpp <- function(args) {
     .Call(`_bobfunctions2_dummy1_cpp`, args)
 }
 
+sim_wrightfisher_cpp <- function(args, args_functions, args_progress) {
+    .Call(`_bobfunctions2_sim_wrightfisher_cpp`, args, args_functions, args_progress)
+}
+
