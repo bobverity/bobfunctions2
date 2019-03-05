@@ -1097,3 +1097,27 @@ sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_out, output_format =
   return(output_processed)
 }
 
+#------------------------------------------------
+#' @title Return complementary DNA or RNA sequence
+#'
+#' @description Return complementary DNA or RNA sequence.
+#'
+#' @param x input DNA sequence as character string.
+#' @param format_rna logical. If \code{TRUE} then A complements to U, rather than T.
+#'
+#' @export
+
+dna_complement <- function(x, format_rna = FALSE) {
+  ret <- gsub("G", "X", toupper(x))
+  ret <- gsub("C", "G", ret)
+  ret <- gsub("X", "C", ret)
+  
+  ret <- gsub("A", "X", ret)
+  ret <- gsub("T", "A", ret)
+  if (format_rna) {
+    ret <- gsub("X", "U", ret)
+  } else {
+    ret <- gsub("X", "T", ret)
+  }
+  return(ret)
+}
