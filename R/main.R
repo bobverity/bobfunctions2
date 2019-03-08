@@ -1121,3 +1121,35 @@ dna_complement <- function(x, format_rna = FALSE) {
   }
   return(ret)
 }
+
+#------------------------------------------------
+#' @title rbind a list of matrices into a single matrix
+#'
+#' @description rbind a list of matrices into a single matrix. All matrices must
+#'   have the same number of columns.
+#'
+#' @param l list of matrices.
+#'
+#' @export
+
+list_to_matrix <- function(l) {
+  
+  # check inputs
+  assert_list(l)
+  
+  # return if single element
+  if (length(l) == 1) {
+    return(l)
+  }
+  
+  # check same ncol of all elements
+  l_col <- mapply(ncol, l)
+  if (any(l_col != l_col[1])) {
+    stop("all matrices must have the same number of columns")
+  }
+  
+  # rbind all matrices
+  ret <- do.call(rbind, l)
+  
+  return(ret)
+}
