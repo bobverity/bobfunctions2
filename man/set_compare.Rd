@@ -2,7 +2,7 @@
 % Please edit documentation in R/main.R
 \name{set_compare}
 \alias{set_compare}
-\title{Print summary of setdiff and intersections of two sets}
+\title{Print summary of differences and intersections of two sets}
 \usage{
 set_compare(s1, s2)
 }
@@ -12,10 +12,14 @@ set_compare(s1, s2)
 \item{s2}{second set.}
 }
 \description{
-Given two sets s1 and s2, print three values:
+Given two sets s1 and s2, print four values:
   \enumerate{
     \item the number of s1 not in s2
-    \item the intersection size of s1 and s2
+    \item the number of s1 in s2
+    \item the number of s2 in s1
     \item the number of s2 not in s1
   }
+
+The second and third values will be the same when there are no duplicates,
+but otherwise could be different.
 }

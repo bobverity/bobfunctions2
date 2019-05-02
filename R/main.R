@@ -1155,14 +1155,18 @@ list_to_matrix <- function(l) {
 }
 
 #------------------------------------------------
-#' @title Print summary of setdiff and intersections of two sets
+#' @title Print summary of differences and intersections of two sets
 #'
-#' @description Given two sets s1 and s2, print three values:
+#' @description Given two sets s1 and s2, print four values:
 #'   \enumerate{
 #'     \item the number of s1 not in s2
-#'     \item the intersection size of s1 and s2
+#'     \item the number of s1 in s2
+#'     \item the number of s2 in s1
 #'     \item the number of s2 not in s1
 #'   }
+#' 
+#' The second and third values will be the same when there are no duplicates,
+#' but otherwise could be different.
 #'
 #' @param s1 first set.
 #' @param s2 second set.
@@ -1176,8 +1180,14 @@ set_compare <- function(s1, s2) {
   assert_vector(s2)
   
   # set operations
-  v <- sum(s1 %in% s2)
-  ret <- c(length(s1) - v, v, length(s2) - v)
+  v2 <- sum(s1 %in% s2)
+  v1 <- length(s1) - v2
+  v3 <- sum(s2 %in% s1)
+  v4 <- length(s2) - v3
+  ret <- c(set1_only = v1,
+           set1_in_set2 = v2,
+           set2_in_set1 = v3,
+           set2_only = v4)
   
   return(ret)
 }
