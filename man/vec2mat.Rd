@@ -8,6 +8,8 @@ vec2mat(x, y, dim)
 }
 \arguments{
 \item{x, y}{two vectors of any type.}
+
+\item{dim}{which dimension of the output matrix to return.}
 }
 \description{
 Given two input vectors, expands these vectors into matrices

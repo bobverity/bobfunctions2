@@ -1200,6 +1200,7 @@ set_compare <- function(s1, s2) {
 #'   x, or the matrix in y.
 #'
 #' @param x,y two vectors of any type.
+#' @param dim which dimension of the output matrix to return.
 #'
 #' @export
 
@@ -1211,4 +1212,33 @@ vec2mat <- function(x, y, dim) {
     output <- matrix(rep(y, length(x)), length(y))
   }
   return(output)
+}
+
+#------------------------------------------------
+#' @title Produce smooth colours from values
+#'
+#' @description Read in continuous values between xmin and xmax and return
+#'   colours associated with these values, taken from a smoothly varying scale.
+#'
+#' @param x values from which to obtain colours.
+#' @param xmin,xmax minimum and maximum values of x.
+#' @param n_levels number of colours in palette.
+#' @param raw_cols colours that make up the palette.
+#'
+#' @export
+
+smooth_cols <- function(x,
+                        xmin = min(x, na.rm = T),
+                        xmax = max(x, na.rm = T),
+                        n_levels = 1e3,
+                        raw_cols = col_tim()) {
+  
+  # get x between 0 and 1
+  x <- (x - xmin)/(xmax - xmin)
+  
+  # make smooth colours
+  my_pal <- colorRampPalette(raw_cols)
+  cols <- my_pal(n_levels+1)[floor(x*n_levels) + 1]
+  
+  return(cols)
 }
