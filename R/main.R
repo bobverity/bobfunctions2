@@ -1242,3 +1242,113 @@ smooth_cols <- function(x,
   
   return(cols)
 }
+
+#------------------------------------------------
+#' @title Generate Perlin noise
+#'
+#' @description Generates 2D Perlin noise of any scale, in a matrix of any size.
+#'   Credit to
+#'   \href{https://stackoverflow.com/users/1129973/vincent-zoonekynd}{Vincent
+#'   Zoonekynd} for
+#'   \href{https://stackoverflow.com/questions/15387328/realistic-simulated-elevation-data-in-r-perlin-noise}{this
+#'   answer}.
+#'
+#' @param out_rows,out_cols rows and columnds in output matrix.
+#' @param levels_x,levels_y bumpyness in x and y dimension.
+#'
+#' @export
+
+perlin_noise = function(out_rows = 128,
+                        out_cols = 128,
+                        levels_x = 10,
+                        levels_y = 10) {
+  
+  # check inputs
+  assert_single_pos_int(out_rows, zero_allowed = FALSE)
+  assert_single_pos_int(out_cols, zero_allowed = FALSE)
+  assert_single_pos_int(levels_x, zero_allowed = FALSE)
+  assert_greq(levels_x, 2)
+  assert_single_pos_int(levels_y, zero_allowed = FALSE)
+  assert_greq(levels_y, 2)
+  
+  # convert to more convenient names
+  M = out_rows
+  N = out_cols
+  n = levels_x
+  m = levels_y
+  
+  # for each point on this n*m grid, choose a unit 1 vector
+  vector_field <- apply(array(rnorm(2*n*m), dim = c(2,n,m)), 2:3, function(u) u/sqrt(sum(u^2)))
+  
+  f <- function(x,y) {
+    
+    # find the grid cell in which the point (x,y) lies
+    i <- floor(x)
+    j <- floor(y)
+    stopifnot( i >= 1 || j >= 1 || i < n || j < m )
+    
+    # the 4 vectors, from the vector field, at the vertices of the square
+    v1 <- vector_field[,i,j]
+    v2 <- vector_field[,i+1,j]
+    v3 <- vector_field[,i,j+1]
+    v4 <- vector_field[,i+1,j+1]
+    
+    # vectors from the point to the vertices
+    u1 <- c(x,y) - c(i,j)
+    u2 <- c(x,y) - c(i+1,j)
+    u3 <- c(x,y) - c(i,j+1)
+    u4 <- c(x,y) - c(i+1,j+1)
+    
+    # scalar products
+    a1 <- sum( v1 * u1 )
+    a2 <- sum( v2 * u2 )
+    a3 <- sum( v3 * u3 )
+    a4 <- sum( v4 * u4 )
+    
+    # weighted average of the scalar products
+    s <- function(p) 3*p^2 - 2*p^3
+    p <- s( x - i )
+    q <- s( y - j )
+    b1 <- (1-p)*a1 + p*a2
+    b2 <- (1-p)*a3 + p*a4
+    (1-q) * b1 + q * b2
+  }
+  
+  xs <- seq(from = 1, to = n, length = N+1)[-(N+1)]
+  ys <- seq(from = 1, to = m, length = M+1)[-(M+1)]
+  outer( xs, ys, Vectorize(f) )
+}
+
+#------------------------------------------------
+#' @title Generate fractal noise
+#'
+#' @description Generates 2D fractal noise by layering Perlin noise at different levels.
+#'
+#' @param out_rows,out_cols rows and columnds in output matrix.
+#' @param a scale parameter. Values near zero place more weight on large
+#'   features, a value of 1 places equal weight on all levels, and values > 1
+#'   place more weight on small features.
+#' @param n_levels number of levels of Perlin noise to layer.
+#'
+#' @importFrom stats rnorm
+#' @export
+
+fractal_noise = function(out_rows = 128,
+                        out_cols = 128,
+                        a = 0.6,
+                        n_levels = 7) {
+  
+  # check inputs
+  assert_single_pos_int(out_rows, zero_allowed = FALSE)
+  assert_single_pos_int(out_cols, zero_allowed = FALSE)
+  assert_single_pos(a, zero_allowed = FALSE)
+  assert_single_pos_int(n_levels, zero_allowed = FALSE)
+  
+  # layer Perlin noise
+  ret <- 0
+  for (i in 1:n_levels) {
+    ret <- ret + a^i*perlin_noise(out_rows, out_cols, 2^i, 2^i)
+  }
+  
+  return(ret)
+}
