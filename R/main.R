@@ -1191,3 +1191,24 @@ set_compare <- function(s1, s2) {
   
   return(ret)
 }
+
+#------------------------------------------------
+#' @title Convert vector to matrix
+#'
+#' @description Given two input vectors, expands these vectors into matrices
+#'   based on the dimensions of the other vector. Returns either the matrix in
+#'   x, or the matrix in y.
+#'
+#' @param x,y two vectors of any type.
+#'
+#' @export
+
+vec2mat <- function(x, y, dim) {
+  
+  if (dim == 1) {
+    output <- matrix(rep(x, each = length(y)), length(y))
+  } else {
+    output <- matrix(rep(y, length(x)), length(y))
+  }
+  return(output)
+}
