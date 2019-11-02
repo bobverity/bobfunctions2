@@ -1352,3 +1352,29 @@ fractal_noise = function(out_rows = 128,
   
   return(ret)
 }
+
+#------------------------------------------------
+#' @title Apply box blur to a matrix
+#'
+#' @description Smooths a matrix of values by applying a box blur, in which each
+#'   pixel of a matrix is replaced with the average value of pixels in a box
+#'   around it.
+#'
+#' @param m a matrix of values to be blurred.
+#' @param d the distance either side of each pixel that is searched when
+#'   blurring
+#'
+#' @export
+
+box_blur = function(m, d = 5) {
+  
+  # check inputs
+  assert_matrix(m)
+  assert_numeric(m)
+  assert_single_pos_int(d, zero_allowed = FALSE)
+  
+  # run efficient C++ function
+  ret <- box_blur_cpp(m, d)
+  
+  return(ret)
+}

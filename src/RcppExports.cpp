@@ -29,10 +29,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// box_blur_cpp
+Rcpp::NumericMatrix box_blur_cpp(Rcpp::NumericMatrix m, int d);
+RcppExport SEXP _bobfunctions2_box_blur_cpp(SEXP mSEXP, SEXP dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type m(mSEXP);
+    Rcpp::traits::input_parameter< int >::type d(dSEXP);
+    rcpp_result_gen = Rcpp::wrap(box_blur_cpp(m, d));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bobfunctions2_dummy1_cpp", (DL_FUNC) &_bobfunctions2_dummy1_cpp, 1},
     {"_bobfunctions2_sim_wrightfisher_cpp", (DL_FUNC) &_bobfunctions2_sim_wrightfisher_cpp, 3},
+    {"_bobfunctions2_box_blur_cpp", (DL_FUNC) &_bobfunctions2_box_blur_cpp, 2},
     {NULL, NULL, 0}
 };
 
