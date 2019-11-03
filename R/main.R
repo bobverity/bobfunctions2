@@ -1378,3 +1378,16 @@ box_blur = function(m, d = 5) {
   
   return(ret)
 }
+
+#------------------------------------------------
+#' @title Return object size in auto units
+#'
+#' @description Return object size in auto units.
+#'
+#' @param x object.
+#'
+#' @export
+
+object.size_auto <- function(x) {
+  format(object.size(x), units = "auto")
+}
