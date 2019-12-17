@@ -1386,6 +1386,7 @@ box_blur = function(m, d = 5) {
 #'
 #' @param x object.
 #'
+#' @importFrom utils object.size
 #' @export
 
 object.size_auto <- function(x) {

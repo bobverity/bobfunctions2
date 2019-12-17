@@ -4,8 +4,16 @@
 \alias{gg3d_add_grid_lines}
 \title{Add grid lines to ggplot perspective plot}
 \usage{
-gg3d_add_grid_lines(myplot, x = seq(0, 1, 0.1), y = c(0, 1), z = 0,
-  proj_mat, col = grey(0.8), size = 0.5, break_axis = NULL)
+gg3d_add_grid_lines(
+  myplot,
+  x = seq(0, 1, 0.1),
+  y = c(0, 1),
+  z = 0,
+  proj_mat,
+  col = grey(0.8),
+  size = 0.5,
+  break_axis = NULL
+)
 }
 \arguments{
 \item{myplot}{an object of class \code{ggplot}.}

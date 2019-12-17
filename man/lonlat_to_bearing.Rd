@@ -4,8 +4,7 @@
 \alias{lonlat_to_bearing}
 \title{Calculate great circle distance and bearing between coordinates}
 \usage{
-lonlat_to_bearing(origin_lon, origin_lat, dest_lon, dest_lat,
-  earth_rad = 6371)
+lonlat_to_bearing(origin_lon, origin_lat, dest_lon, dest_lat, earth_rad = 6371)
 }
 \arguments{
 \item{origin_lon}{the origin longitude}

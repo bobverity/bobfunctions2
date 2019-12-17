@@ -4,8 +4,7 @@
 \alias{fractal_noise}
 \title{Generate fractal noise}
 \usage{
-fractal_noise(out_rows = 128, out_cols = 128, a = 0.6,
-  n_levels = 7)
+fractal_noise(out_rows = 128, out_cols = 128, a = 0.6, n_levels = 7)
 }
 \arguments{
 \item{out_rows, out_cols}{rows and columnds in output matrix.}

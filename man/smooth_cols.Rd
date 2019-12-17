@@ -4,8 +4,13 @@
 \alias{smooth_cols}
 \title{Produce smooth colours from values}
 \usage{
-smooth_cols(x, xmin = min(x, na.rm = T), xmax = max(x, na.rm = T),
-  n_levels = 1000, raw_cols = col_tim())
+smooth_cols(
+  x,
+  xmin = min(x, na.rm = T),
+  xmax = max(x, na.rm = T),
+  n_levels = 1000,
+  raw_cols = col_tim()
+)
 }
 \arguments{
 \item{x}{values from which to obtain colours.}

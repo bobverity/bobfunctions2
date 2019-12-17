@@ -4,8 +4,7 @@
 \alias{perlin_noise}
 \title{Generate Perlin noise}
 \usage{
-perlin_noise(out_rows = 128, out_cols = 128, levels_x = 10,
-  levels_y = 10)
+perlin_noise(out_rows = 128, out_cols = 128, levels_x = 10, levels_y = 10)
 }
 \arguments{
 \item{out_rows, out_cols}{rows and columnds in output matrix.}

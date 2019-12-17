@@ -4,8 +4,7 @@
 \alias{gg_inset}
 \title{Add inset plot to faceted ggplot}
 \usage{
-gg_inset(grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf,
-  data)
+gg_inset(grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, data)
 }
 \arguments{
 \item{grob}{a ggplot object.}
