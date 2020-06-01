@@ -305,7 +305,8 @@ bin_2d <- function(x, y, x_breaks = NULL, y_breaks = NULL) {
 #' @export
 
 midpoints <- function(x) {
-  return((x[-1] + x[-length(x)])/2)
+  ret <- (x[-1] + x[-length(x)]) / 2
+  return(ret)
 }
 
 #------------------------------------------------
@@ -330,8 +331,8 @@ buffer_range <- function(x_min, x_max, buffer = 1.1) {
   
   # create buffer range
   x_range <- (x_max - x_min)
-  x_mid <- (x_max + x_min)/2
-  ret <- c(x_mid - x_range/2*buffer, x_mid + x_range/2*buffer)
+  x_mid <- (x_max + x_min) / 2
+  ret <- c(x_mid - (x_range / 2)*buffer, x_mid + (x_range / 2)*buffer)
   
   return(ret)
 }
@@ -398,7 +399,8 @@ lonlat_to_bearing <- function(origin_lon, origin_lat, dest_lon, dest_lat, earth_
   delta_lon <- dest_lon - origin_lon
   
   # calculate bearing
-  bearing <- atan2(sin(delta_lon)*cos(dest_lat), cos(origin_lat)*sin(dest_lat)-sin(origin_lat)*cos(dest_lat)*cos(delta_lon))
+  bearing <- atan2(sin(delta_lon)*cos(dest_lat),
+                   cos(origin_lat)*sin(dest_lat) - sin(origin_lat)*cos(dest_lat)*cos(delta_lon))
   
   # calculate great circle angle. Use temporary variable to avoid acos(>1) or 
   # acos(<0), which can happen due to underflow issues
@@ -434,10 +436,11 @@ lonlat_to_bearing <- function(origin_lon, origin_lat, dest_lon, dest_lat, earth_
 layout_mat <- function(n) {
   c <- ceiling(sqrt(n))
   if (c*(c-1) >= n) {
-    return(matrix(1:(c*(c-1)), nrow = c, byrow = TRUE))
+    ret <- matrix(1:(c*(c-1)), nrow = c, byrow = TRUE)
   } else {
-    return(matrix(1:c^2, nrow = c, byrow = TRUE))
+    ret <- matrix(1:c^2, nrow = c, byrow = TRUE)
   }
+  return(ret)
 }
 
 #------------------------------------------------
@@ -470,7 +473,13 @@ get_projection <- function(x_lim, y_lim, z_lim, theta, phi, d = 2) {
   
   # write perspective plot to temp file
   jpeg(tempfile())
-  ret <- suppressWarnings(persp(matrix(0,2,2), xlim = x_lim, ylim = y_lim, zlim = z_lim, theta = theta, phi = phi, d = d))
+  ret <- suppressWarnings(persp(matrix(0,2,2),
+                                xlim = x_lim,
+                                ylim = y_lim,
+                                zlim = z_lim,
+                                theta = theta,
+                                phi = phi,
+                                d = d))
   dev.off()
   
   return(ret)
@@ -657,7 +666,13 @@ gg3d_add_grid_lines <- function(myplot, x = seq(0,1,0.1), y = c(0,1), z = 0, pro
 #' @import ggplot2
 #' @export
 
-gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi = 30, d = 2, x_lim = NULL, y_lim = NULL, z_lim = NULL, x_grid = NULL, y_grid = NULL, z_grid = NULL, z_type = 2, flip_grid_x = FALSE, flip_grid_y = FALSE, grid_col = grey(0.8), grid_size = 0.25, zero_line_on = TRUE, zero_line_col = grey(0.8), zero_line_size = 0.6, axis_on = FALSE, axis_col = "black", axis_size = 0.5, x_lab = "x", y_lab = "y", z_lab = "z", tick_length = 0.2, axis_lab_size = 3, axis_lab_dist = 2) {
+gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi = 30, d = 2,
+                             x_lim = NULL, y_lim = NULL, z_lim = NULL, x_grid = NULL, y_grid = NULL,
+                             z_grid = NULL, z_type = 2, flip_grid_x = FALSE, flip_grid_y = FALSE,
+                             grid_col = grey(0.8), grid_size = 0.25, zero_line_on = TRUE,
+                             zero_line_col = grey(0.8), zero_line_size = 0.6, axis_on = FALSE,
+                             axis_col = "black", axis_size = 0.5, x_lab = "x", y_lab = "y", z_lab = "z",
+                             tick_length = 0.2, axis_lab_size = 3, axis_lab_dist = 2) {
   
   # check inputs
   assert_vector(x)
@@ -735,7 +750,12 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
   scale_factor <- c(diff(x_lim), diff(y_lim), diff(z_lim))/max_scale
   
   # get projection matrix
-  proj_mat <- get_projection(x_lim = x_lim/scale_factor[1], y_lim = y_lim/scale_factor[2], z_lim = z_lim/scale_factor[3], theta = theta, phi = phi, d = d)
+  proj_mat <- get_projection(x_lim = x_lim/scale_factor[1],
+                             y_lim = y_lim/scale_factor[2],
+                             z_lim = z_lim/scale_factor[3],
+                             theta = theta,
+                             phi = phi,
+                             d = d)
   
   # produce basic plot
   plot1 <- ggplot() + theme(panel.grid.major = element_blank(),
@@ -826,7 +846,8 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
   
   # add ticks
   tick_all <- rbind(tick_x, tick_y, tick_z)
-  plot1 <- plot1 + geom_segment(aes_(x = ~x0, y = ~y0, xend = ~x1, yend = ~y1), col = grey(0.8), size = 0.25, data = tick_all)
+  plot1 <- plot1 + geom_segment(aes_(x = ~x0, y = ~y0, xend = ~x1, yend = ~y1),
+                                col = grey(0.8), size = 0.25, data = tick_all)
   
   # calculate tick text positions
   tick_text_x <- project_2d(x_grid, yv[2] + delta_y*1.5, z_lim[1] + delta_z*1.5, proj_mat)
@@ -974,6 +995,31 @@ dna_to_aa <- function(x, output_format = 1) {
 }
 
 #------------------------------------------------
+#' @title Return complementary DNA or RNA sequence
+#'
+#' @description Return complementary DNA or RNA sequence.
+#'
+#' @param x input DNA sequence as character string.
+#' @param format_rna logical. If \code{TRUE} then A complements to U, rather than T.
+#'
+#' @export
+
+dna_complement <- function(x, format_rna = FALSE) {
+  ret <- gsub("G", "X", toupper(x))
+  ret <- gsub("C", "G", ret)
+  ret <- gsub("X", "C", ret)
+  
+  ret <- gsub("A", "X", ret)
+  ret <- gsub("T", "A", ret)
+  if (format_rna) {
+    ret <- gsub("X", "U", ret)
+  } else {
+    ret <- gsub("X", "T", ret)
+  }
+  return(ret)
+}
+
+#------------------------------------------------
 #' @title Simulate from simple Wright-Fisher model
 #'
 #' @description Simulate Wright-Fisher evolution. The model used here is
@@ -1098,31 +1144,6 @@ sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_out, output_format =
 }
 
 #------------------------------------------------
-#' @title Return complementary DNA or RNA sequence
-#'
-#' @description Return complementary DNA or RNA sequence.
-#'
-#' @param x input DNA sequence as character string.
-#' @param format_rna logical. If \code{TRUE} then A complements to U, rather than T.
-#'
-#' @export
-
-dna_complement <- function(x, format_rna = FALSE) {
-  ret <- gsub("G", "X", toupper(x))
-  ret <- gsub("C", "G", ret)
-  ret <- gsub("X", "C", ret)
-  
-  ret <- gsub("A", "X", ret)
-  ret <- gsub("T", "A", ret)
-  if (format_rna) {
-    ret <- gsub("X", "U", ret)
-  } else {
-    ret <- gsub("X", "T", ret)
-  }
-  return(ret)
-}
-
-#------------------------------------------------
 #' @title rbind a list of matrices into a single matrix
 #'
 #' @description rbind a list of matrices into a single matrix. All matrices must
@@ -1139,7 +1160,7 @@ list_to_matrix <- function(l) {
   
   # return if single element
   if (length(l) == 1) {
-    return(l)
+    return(l[[1]])
   }
   
   # check same ncol of all elements
@@ -1246,14 +1267,9 @@ smooth_cols <- function(x,
 #------------------------------------------------
 #' @title Generate Perlin noise
 #'
-#' @description Generates 2D Perlin noise of any scale, in a matrix of any size.
-#'   Credit to
-#'   \href{https://stackoverflow.com/users/1129973/vincent-zoonekynd}{Vincent
-#'   Zoonekynd} for
-#'   \href{https://stackoverflow.com/questions/15387328/realistic-simulated-elevation-data-in-r-perlin-noise}{this
-#'   answer}.
+#' @description Generates 2D Perlin noise of any scale, in a matrix of any size. Credit to \href{https://stackoverflow.com/users/1129973/vincent-zoonekynd}{Vincent Zoonekynd} for \href{https://stackoverflow.com/questions/15387328/realistic-simulated-elevation-data-in-r-perlin-noise}{this answer}.
 #'
-#' @param out_rows,out_cols rows and columnds in output matrix.
+#' @param out_rows,out_cols rows and columns in output matrix.
 #' @param levels_x,levels_y bumpyness in x and y dimension.
 #'
 #' @export
@@ -1391,4 +1407,57 @@ box_blur = function(m, d = 5) {
 
 object.size_auto <- function(x) {
   format(object.size(x), units = "auto")
+}
+
+#------------------------------------------------
+#' @title Calculate moving average over a window
+#'
+#' @description Calculate moving average of a sequence of values over a defined
+#'   window that extends \code{d} units either side of the central value (hence
+#'   \code{d=1} returns the original sequence). NA values are not counted in the
+#'   numerator or denominator of the average. Where the window goes beyond the
+#'   limits of the sequence, these values can included in the moving average
+#'   (simply ignoring values outside the range) or returned as NA.
+#'
+#' @param x vector of numeric values.
+#' @param d how far to look either side of central value. For example,
+#'   \code{d=2} would search -2:2.
+#' @param include_ends if \code{TRUE}, values where the window extends beyond
+#'   the range of the sequence are included in the output. Otherwise return NA
+#'   for these values.
+#'
+#' @export
+
+moving_average <- function(x, d = 3, include_ends = TRUE) {
+  
+  # check inputs
+  assert_vector(x)
+  assert_numeric(x)
+  assert_single_pos_int(d, zero_allowed = TRUE)
+  assert_single_logical(include_ends)
+  
+  # get start and end of range to explore
+  n <- length(x)
+  x_start <- (1:n) - d
+  x_end <- (1:n) + d
+  x_inner <- (x_start >= 1) & (x_end <= n)
+  x_start[x_start < 1] <- 1
+  x_end[x_end > n] <- n
+  
+  # get cumulative sums
+  y <- ifelse(is.na(x), 0, x)
+  cx <- cumsum(y)
+  cn <- cumsum(!is.na(x))
+  
+  # calculate final numerator and denominator
+  x_sum <- y[x_start] + cx[x_end] - cx[x_start]
+  x_n <- (!is.na(x[x_start])) + cn[x_end] - cn[x_start]
+  ret <- x_sum / x_n
+  
+  # drop ends if needed
+  if (!include_ends) {
+    ret[x_inner == FALSE] <- NA
+  }
+  
+  return(ret)
 }
