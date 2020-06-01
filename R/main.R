@@ -249,10 +249,8 @@ func_header <- function(type = 1) {
 bin_2d <- function(x, y, x_breaks = NULL, y_breaks = NULL) {
   
   # check inputs
-  assert_numeric(x)
-  assert_vector(x)
-  assert_numeric(y)
-  assert_vector(y)
+  assert_vector_numeric(x)
+  assert_vector_numeric(y)
   assert_same_length(x, y)
   if (is.null(x_breaks)) {
     x_range <- buffer_range(min(x, na.rm = TRUE), max(x, na.rm = TRUE), buffer = 1.1)
@@ -262,10 +260,8 @@ bin_2d <- function(x, y, x_breaks = NULL, y_breaks = NULL) {
     y_range <- buffer_range(min(y, na.rm = TRUE), max(y, na.rm = TRUE), buffer = 1.1)
     y_breaks <- seq(y_range[1], y_range[2], l = 101)
   }
-  assert_numeric(x_breaks)
-  assert_vector(x_breaks)
-  assert_numeric(y_breaks)
-  assert_vector(y_breaks)
+  assert_vector_numeric(x_breaks)
+  assert_vector_numeric(y_breaks)
   
   # get number of breaks in each dimension
   nx <- length(x_breaks)
@@ -291,21 +287,6 @@ bin_2d <- function(x, y, x_breaks = NULL, y_breaks = NULL) {
   ret <- list(x_mids = midpoints(x_breaks),
               y_mids = midpoints(y_breaks),
               z = z)
-  return(ret)
-}
-
-#------------------------------------------------
-#' @title Find midpoints of a vector of breaks
-#'
-#' @description Find midpoints of a vector of breaks. The resulting vector will
-#'   have one less element than the input vector.
-#'
-#' @param x a vector of breaks
-#'
-#' @export
-
-midpoints <- function(x) {
-  ret <- (x[-1] + x[-length(x)]) / 2
   return(ret)
 }
 
@@ -378,15 +359,11 @@ dist_gc <- function(x) {
 lonlat_to_bearing <- function(origin_lon, origin_lat, dest_lon, dest_lat, earth_rad = 6371) {
   
   # check inputs
-  assert_numeric(origin_lon)
-  assert_vector(origin_lon)
-  assert_numeric(origin_lat)
-  assert_vector(origin_lat)
+  assert_vector_numeric(origin_lon)
+  assert_vector_numeric(origin_lat)
   assert_same_length(origin_lon, origin_lat)
-  assert_numeric(dest_lon)
-  assert_vector(dest_lon)
-  assert_numeric(dest_lat)
-  assert_vector(dest_lat)
+  assert_vector_numeric(dest_lon)
+  assert_vector_numeric(dest_lat)
   assert_same_length(dest_lon, dest_lat)
   assert_single_pos(earth_rad, zero_allowed = FALSE)
   
@@ -567,18 +544,18 @@ project_2d_line <- function(x0, y0, z0, x1, y1, z1, proj_mat) {
 #'
 #' @export
 
-gg3d_add_grid_lines <- function(myplot, x = seq(0,1,0.1), y = c(0,1), z = 0, proj_mat, col = grey(0.8), size = 0.5, break_axis = NULL) {
+gg3d_add_grid_lines <- function(myplot, x = seq(0,1,0.1), y = c(0,1), z = 0,
+                                proj_mat, col = grey(0.8), size = 0.5, break_axis = NULL) {
   
   # check inputs
   assert_custom_class(myplot, "ggplot")
-  assert_vector(x)
+  assert_vector_numeric(x)
   assert_increasing(x)
-  assert_vector(y)
+  assert_vector_numeric(y)
   assert_increasing(y)
-  assert_vector(z)
+  assert_vector_numeric(z)
   assert_increasing(z)
-  assert_matrix(proj_mat)
-  assert_numeric(proj_mat)
+  assert_matrix_numeric(proj_mat)
   assert_dim(proj_mat, c(4,4))
   
   # attempt to set break_axis from other inputs
@@ -675,12 +652,9 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
                              tick_length = 0.2, axis_lab_size = 3, axis_lab_dist = 2) {
   
   # check inputs
-  assert_vector(x)
-  assert_numeric(x)
-  assert_vector(y)
-  assert_numeric(y)
-  assert_vector(z)
-  assert_numeric(z)
+  assert_vector_numeric(x)
+  assert_vector_numeric(y)
+  assert_vector_numeric(z)
   assert_single_pos(size)
   assert_single_numeric(theta)
   assert_single_numeric(phi)
@@ -695,16 +669,13 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
     assert_limit(z_lim)
   }
   if (!is.null(x_grid)) {
-    assert_vector(x_grid)
-    assert_numeric(x_grid)
+    assert_vector_numeric(x_grid)
   }
   if (!is.null(y_grid)) {
-    assert_vector(y_grid)
-    assert_numeric(y_grid)
+    assert_vector_numeric(y_grid)
   }
   if (!is.null(z_grid)) {
-    assert_vector(z_grid)
-    assert_numeric(z_grid)
+    assert_vector_numeric(z_grid)
   }
   assert_in(z_type, 1:2)
   assert_single_logical(flip_grid_x)
@@ -730,17 +701,17 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
   
   # set default grid lines
   if (is.null(x_grid)) {
-    delta_x <- x_pretty[2]-x_pretty[1]
+    delta_x <- x_pretty[2] - x_pretty[1]
     x_grid <- seq(floor(x_lim[1]/delta_x)*delta_x, ceiling(x_lim[2]/delta_x)*delta_x, delta_x)
     x_grid <- x_grid[x_grid >= x_lim[1] & x_grid <= x_lim[2]]
   }
   if (is.null(y_grid)) {
-    delta_y <- y_pretty[2]-y_pretty[1]
+    delta_y <- y_pretty[2] - y_pretty[1]
     y_grid <- seq(floor(y_lim[1]/delta_y)*delta_y, ceiling(y_lim[2]/delta_y)*delta_y, delta_y)
     y_grid <- y_grid[y_grid >= y_lim[1] & y_grid <= y_lim[2]]
   }
   if (is.null(z_grid)) {
-    delta_z <- z_pretty[2]-z_pretty[1]
+    delta_z <- z_pretty[2] - z_pretty[1]
     z_grid <- seq(floor(z_lim[1]/delta_z)*delta_z, ceiling(z_lim[2]/delta_z)*delta_z, delta_z)
     z_grid <- z_grid[z_grid >= z_lim[1] & z_grid <= z_lim[2]]
   }
@@ -1431,8 +1402,7 @@ object.size_auto <- function(x) {
 moving_average <- function(x, d = 3, include_ends = TRUE) {
   
   # check inputs
-  assert_vector(x)
-  assert_numeric(x)
+  assert_vector_numeric(x)
   assert_single_pos_int(d, zero_allowed = TRUE)
   assert_single_logical(include_ends)
   
@@ -1460,4 +1430,66 @@ moving_average <- function(x, d = 3, include_ends = TRUE) {
   }
   
   return(ret)
+}
+
+#------------------------------------------------
+#' @title Get cubic spline between coordinates
+#'
+#' @description Given a set of x,y coordinates, calculate the cubic spline that
+#'   goes through all points. The solution is returned at a specified set of
+#'   x-coordinates, which must be contained within the input x-coordinates. Both
+#'   input and output x-coordinates must be increasing (i.e. the spline cannot
+#'   double back).
+#'
+#' @param x,y coordinates of points
+#' @param x_pred x-coordinates at which to calculate cubic spline.
+#'
+#' @export
+
+cubic_spline <- function(x, y, x_pred) {
+  
+  # check inputs
+  assert_vector_numeric(x)
+  assert_increasing(x)
+  assert_vector_numeric(y)
+  assert_same_length(x, y)
+  assert_vector_numeric(x_pred)
+  assert_increasing(x_pred)
+  assert_greq(min(x_pred), min(x))
+  assert_leq(max(x_pred), max(x))
+  
+  # calculate spline coefficients
+  n <- length(x) - 1
+  c <- l <- mu <- z <- rep(0, n + 1)
+  h <- b <- d <- alpha <- rep(NA, n)
+  for (i in 1:n) {
+    h[i] <- x[i+1] - x[i]
+  }
+  for (i in 2:n) {
+    alpha[i] <- 3/h[i]*(y[i+1] - y[i]) - 3/h[i-1]*(y[i] - y[i-1])
+  }
+  l[1] <- 1
+  for (i in 2:n) {
+    l[i] <- 2*(x[i+1] - x[i-1]) - h[i-1]*mu[i-1]
+    mu[i] <- h[i]/l[i]
+    z[i] <- (alpha[i] - h[i-1]*z[i-1])/l[i]
+  }
+  l[n+1] <- 1
+  for (i in n:1) {
+    c[i] <- z[i] - mu[i]*c[i+1]
+    b[i] <- (y[i+1] - y[i])/h[i] - h[i]*(c[i+1] + 2*c[i])/3
+    d[i] <- (c[i+1] - c[i])/(3*h[i])
+  }
+  
+  # make spline
+  s <- rep(NA, length(x_pred))
+  j <- 1
+  for (i in seq_along(x_pred)) {
+    if (x_pred[i] > x[j+1]) {
+      j <- j + 1
+    }
+    s[i] <- y[j] + b[j]*(x_pred[i] - x[j]) + c[j]*(x_pred[i] - x[j])^2 + d[j]*(x_pred[i] - x[j])^3
+  }
+  
+  return(s)
 }
