@@ -1,7 +1,7 @@
 
 #include "main.h"
-#include "misc_v3.h"
-#include "probability_v1.h"
+#include "misc_v10.h"
+#include "probability_v10.h"
 
 using namespace std;
 
@@ -16,7 +16,7 @@ Rcpp::List dummy1_cpp(Rcpp::List args) {
   vector<double> x = Rcpp::as<vector<double>>(args("x"));
   
   // square values
-  for (int i=0; i<int(x.size()); i++) {
+  for (int i = 0; i < int(x.size()); ++i) {
     x[i] *= x[i];
   }
   
