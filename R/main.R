@@ -1493,5 +1493,3 @@ dummy1 <- function(x = 1:5) {
   # return
   return(ret)
 }
-
-
