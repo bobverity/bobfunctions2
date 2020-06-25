@@ -1461,35 +1461,116 @@ cubic_spline <- function(x, y, x_pred) {
 }
 
 #------------------------------------------------
-#' @title Dummy function
+#' @title The Incomplete Gamma Function
 #'
-#' @description Simple test function that demonstrates some of the features of
-#'   the bellsandwhistles package.
+#' @description Returns the value of the incomplete gamma function, as defined
+#'   \href{https://en.wikipedia.org/wiki/Incomplete_gamma_function#Definition}{here}.
+#'   Accepts vector inputs.
 #'
-#' @details Takes a vector of values, returns the square.
-#'
-#' @param x vector of values
+#' @param s shape parameter
+#' @param x lower bound of integral
 #'
 #' @export
-#' @examples
-#' # Find square of first 100 values
-#' dummy1(1:100)
 
-dummy1 <- function(x = 1:5) {
+gamma_incomplete <- function(s, x) {
   
-  # print message to console
-  message("running R dummy1 function")
+  # check inputs
+  assert_numeric(s)
+  assert_pos(x)
   
-  # get arguments in list form
-  args <- list(x = x)
+  # back-engineer incomplete gamma function from pgamma
+  ret <- gamma(s) * pgamma(x, shape = s, rate = 1, lower.tail = FALSE)
   
-  # run C++ function with these arguments
-  output_raw <- dummy1_cpp(args)
-  
-  # some optional processing of output
-  message("processing output")
-  ret <- output_raw$x_squared
-  
-  # return
   return(ret)
 }
+
+#------------------------------------------------
+#' @name invgamma
+#' @aliases dinvgamma
+#' @aliases pinvgamma
+#'
+#' @title The Inverse-Gamma Distribution
+#'
+#' @description Density, distribution function, quantile function and random
+#'   generation for the inverse-gamma distribution with shape \code{alpha} and
+#'   scale \code{beta}.
+#'
+#' @param x vector of values or quantiles.
+#' @param p vector of probabilities.
+#' @param n number of observations.
+#' @param alpha shape parameter.
+#' @param beta scale parameter.
+#' @param log_on logical; if \code{TRUE} values are returned logged.
+#' @param lower_tail logical; if \code{TRUE} (default) probabilities are
+#'   \emph{P[X <= x]} otherwise \emph{P[X > x]}.
+#'
+NULL
+
+#' @rdname invgamma
+#' @export
+dinvgamma <- function(x, alpha, beta, log_on = FALSE) {
+  
+  # check inputs
+  assert_pos(x)
+  assert_pos(alpha)
+  assert_pos(beta)
+  assert_single_logical(log_on)
+  
+  # calculate return value in log space
+  ret <- alpha*log(beta) - lgamma(alpha) - (alpha + 1)*log(x) - beta/x
+  
+  # exponentiate as needed
+  if (!log_on) {
+    ret <- exp(ret)
+  }
+  
+  return(ret)
+}
+
+#' @rdname invgamma
+#' @export
+pinvgamma <- function(q, alpha, beta, lower_tail = TRUE) {
+  
+  # check inputs
+  assert_pos(q)
+  assert_pos(alpha)
+  assert_pos(beta)
+  assert_single_logical(lower_tail)
+  
+  # calculate return value directly from gamma density
+  ret <- pgamma(beta / q, shape = alpha, rate = 1, lower.tail = !lower_tail)
+  
+  return(ret)
+}
+
+#' @rdname invgamma
+#' @export
+qinvgamma <- function(p, alpha, beta, lower_tail = TRUE) {
+  
+  # check inputs
+  assert_pos(p)
+  assert_pos(alpha)
+  assert_pos(beta)
+  assert_single_logical(lower_tail)
+  
+  # calculate return value directly from gamma density
+  ret <- beta / qgamma(p, shape = alpha, rate = 1, lower.tail = !lower_tail)
+  
+  return(ret)
+}
+
+#' @rdname invgamma
+#' @export
+rinvgamma <- function(n, alpha, beta) {
+  
+  # check inputs
+  assert_single_pos_int(n, zero_allowed = TRUE)
+  assert_single_pos(alpha)
+  assert_single_pos(beta)
+  
+  # draw by transformation of gamma random variable
+  ret <- 1 / rgamma(n, shape = alpha, rate = beta)
+  
+  return(ret)
+}
+
