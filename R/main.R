@@ -1470,6 +1470,7 @@ cubic_spline <- function(x, y, x_pred) {
 #' @param s shape parameter
 #' @param x lower bound of integral
 #'
+#' @importFrom stats pgamma
 #' @export
 
 gamma_incomplete <- function(s, x) {
@@ -1497,6 +1498,7 @@ gamma_incomplete <- function(s, x) {
 #'
 #' @param x vector of values or quantiles.
 #' @param p vector of probabilities.
+#' @param q vector of quantiles
 #' @param n number of observations.
 #' @param alpha shape parameter.
 #' @param beta scale parameter.
@@ -1528,6 +1530,7 @@ dinvgamma <- function(x, alpha, beta, log_on = FALSE) {
 }
 
 #' @rdname invgamma
+#' @importFrom stats pgamma
 #' @export
 pinvgamma <- function(q, alpha, beta, lower_tail = TRUE) {
   
@@ -1544,6 +1547,7 @@ pinvgamma <- function(q, alpha, beta, lower_tail = TRUE) {
 }
 
 #' @rdname invgamma
+#' @importFrom stats qgamma
 #' @export
 qinvgamma <- function(p, alpha, beta, lower_tail = TRUE) {
   
@@ -1574,3 +1578,49 @@ rinvgamma <- function(n, alpha, beta) {
   return(ret)
 }
 
+#------------------------------------------------
+#' @title Quick plot of density distribution
+#'
+#' @description Produces simple plot of probability density for the main
+#'   families of distributions, including normal, lognormal, gamma and
+#'   inverse-gamma.
+#'
+#' @param dist the name of the distribution family. For exapmle \code{"norm"}
+#'   can be used to explore the \code{dnorm()} density.
+#' @param ... further parameters to the distribution function.
+#'
+#' @import ggplot2
+#' @export
+
+plot_density <- function(dist, ...) {
+  
+  # check inputs
+  assert_in(dist, c("norm", "lnorm", "gamma", "invgamma"))
+  
+  # avoid no visible binding error
+  y <- NULL
+  
+  # get additional arguments into list
+  arg_list <- list(...)
+  
+  # get limits that capture most of the distribution
+  eval(parse(text = sprintf("quants <- do.call(q%s, append(arg_list, list(p = c(0.01, 0.99))))", dist)))
+  
+  # manually fix limits for some families of distribution
+  if (dist %in% c("lnorm", "gamma", "invgamma")) {
+    quants[1] <- 0
+  }
+  
+  # calculate density over chosen range
+  x <- seq(quants[1], quants[2], l = 1e3 + 1)
+  eval(parse(text = sprintf("y <- do.call(d%s, append(arg_list, list(x = x)))", dist)))
+  
+  # produce plot
+  plot1 <- ggplot2::ggplot(data.frame(x = x, y = y)) + ggplot2::theme_bw() +
+    ggplot2::geom_area(ggplot2::aes_(x = ~x, y = ~y), fill = grey(0.5)) +
+    ggplot2::xlab("x") + ggplot2::ylab("probability density") +
+    ggplot2::scale_x_continuous(expand = expansion(mult = c(0, 0))) +
+    ggplot2::scale_y_continuous(expand = expansion(mult = c(0, 0.1)))
+  
+  return(plot1)
+}
