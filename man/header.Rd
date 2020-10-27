@@ -4,7 +4,7 @@
 \alias{header}
 \title{Produce script header text}
 \usage{
-header(type = 1)
+header(type = 1, copy_clipboard = FALSE)
 }
 \arguments{
 \item{type}{switches between the following text blocks:
@@ -13,6 +13,10 @@ header(type = 1)
   \item{type = 2: as above, plus list of useful commands and shortcuts when
   working with packages}
 }}
+
+\item{copy_clipboard}{whether the header text should also be copied to the
+clipboard. This should be \code{FALSE} when running on PC as it can cause R
+to crash.}
 }
 \description{
 Produce header text to paste into new script (automatically 

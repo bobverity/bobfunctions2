@@ -20,14 +20,18 @@ NULL
 #'     \item{type = 2: as above, plus list of useful commands and shortcuts when
 #'     working with packages}
 #'   }
+#' @param copy_clipboard whether the header text should also be copied to the
+#'   clipboard. This should be \code{FALSE} when running on PC as it can cause R
+#'   to crash.
 #'
 #' @export
 
-header <- function(type = 1) {
+header <- function(type = 1, copy_clipboard = FALSE) {
   
   # check inputs
   assert_single_int(type)
   assert_in(type, 1:2)
+  assert_single_logical(copy_clipboard)
   
   # make basic text list
   s <- list()
@@ -70,9 +74,11 @@ header <- function(type = 1) {
   ret <- paste(unlist(s), collapse = "\n")
   
   # copy to clipboard
-  clip <- pipe("pbcopy", "w")                       
-  write(ret, file = clip)                               
-  close(clip)
+  if (copy_clipboard) {
+    clip <- pipe("pbcopy", "w")                       
+    write(ret, file = clip)                               
+    close(clip)
+  }
   
   # print text to console
   cat(ret)
@@ -92,14 +98,18 @@ header <- function(type = 1) {
 #'     \item function not exported
 #'     \item S3 method, e.g. \code{print.my_class()}
 #'   }
+#' @param copy_clipboard whether the header text should also be copied to the
+#'   clipboard. This should be \code{FALSE} when running on PC as it can cause R
+#'   to crash.
 #'
 #' @export
 
-func_header <- function(type = 1) {
+func_header <- function(type = 1, copy_clipboard = FALSE) {
   
   # check inputs
   assert_single_int(type)
   assert_in(type, 1:4)
+  assert_single_logical(copy_clipboard)
   
   # make type1 text list
   s <- list()
@@ -190,9 +200,11 @@ func_header <- function(type = 1) {
   ret <- paste(unlist(s), collapse = "\n")
   
   # copy to clipboard
-  clip <- pipe("pbcopy", "w")                       
-  write(ret, file = clip)                               
-  close(clip)
+  if (copy_clipboard) {
+    clip <- pipe("pbcopy", "w")                       
+    write(ret, file = clip)                               
+    close(clip)
+  }
   
   # print text to console
   cat(ret)
@@ -302,7 +314,9 @@ dist_gc <- function(x) {
   assert_ncol(x, 2)
   
   # calculate distance matrix
-  ret <- apply(x, 1, function(y) {lonlat_to_bearing(x[,1], x[,2], y[1], y[2])$gc_dist})
+  ret <- apply(x, 1, function(y) {
+    lonlat_to_bearing(x[,1], x[,2], y[1], y[2])$gc_dist
+    })
   diag(ret) <- 0
   
   return(ret)
@@ -1470,6 +1484,7 @@ cubic_spline <- function(x, y, x_pred) {
 #' @param s shape parameter
 #' @param x lower bound of integral
 #'
+#' @importFrom stats pgamma
 #' @export
 
 gamma_incomplete <- function(s, x) {
@@ -1497,6 +1512,7 @@ gamma_incomplete <- function(s, x) {
 #'
 #' @param x vector of values or quantiles.
 #' @param p vector of probabilities.
+#' @param q vector of quantiles
 #' @param n number of observations.
 #' @param alpha shape parameter.
 #' @param beta scale parameter.
@@ -1528,6 +1544,7 @@ dinvgamma <- function(x, alpha, beta, log_on = FALSE) {
 }
 
 #' @rdname invgamma
+#' @importFrom stats pgamma
 #' @export
 pinvgamma <- function(q, alpha, beta, lower_tail = TRUE) {
   
@@ -1544,6 +1561,7 @@ pinvgamma <- function(q, alpha, beta, lower_tail = TRUE) {
 }
 
 #' @rdname invgamma
+#' @importFrom stats qgamma
 #' @export
 qinvgamma <- function(p, alpha, beta, lower_tail = TRUE) {
   
@@ -1574,3 +1592,135 @@ rinvgamma <- function(n, alpha, beta) {
   return(ret)
 }
 
+#------------------------------------------------
+#' @title Quick plot of density distribution
+#'
+#' @description Produces simple plot of probability density for the main
+#'   families of distributions, including normal, lognormal, gamma and
+#'   inverse-gamma.
+#'
+#' @param dist the name of the distribution family. For exapmle \code{"norm"}
+#'   can be used to explore the \code{dnorm()} density.
+#' @param qrange the quantile range over which to plot.
+#' @param ... further parameters to the distribution function.
+#'
+#' @import ggplot2
+#' @export
+
+plot_density <- function(dist, qrange = c(0.01, 0.99), ...) {
+  
+  # check inputs
+  assert_in(dist, c("norm", "lnorm", "gamma", "invgamma"))
+  assert_limit(qrange)
+  assert_bounded(qrange, inclusive_left = FALSE, inclusive_right = FALSE)
+  
+  # avoid no visible binding error
+  y <- NULL
+  
+  # get additional arguments into list
+  arg_list <- list(...)
+  
+  # get limits that capture most of the distribution
+  eval(parse(text = sprintf("quants <- do.call(q%s, append(arg_list, list(p = c(%s, %s))))",
+                            dist, qrange[1], qrange[2])))
+  
+  # manually fix limits for some families of distribution
+  if (dist %in% c("lnorm", "gamma", "invgamma")) {
+    quants[1] <- 0
+  }
+  
+  # calculate density over chosen range
+  x <- seq(quants[1], quants[2], l = 1e3 + 1)
+  eval(parse(text = sprintf("y <- do.call(d%s, append(arg_list, list(x = x)))", dist)))
+  
+  # produce plot
+  plot1 <- ggplot2::ggplot(data.frame(x = x, y = y)) + ggplot2::theme_bw() +
+    ggplot2::geom_area(ggplot2::aes_(x = ~x, y = ~y), fill = grey(0.5)) +
+    ggplot2::xlab("x") + ggplot2::ylab("probability density") +
+    ggplot2::scale_x_continuous(expand = expansion(mult = c(0, 0))) +
+    ggplot2::scale_y_continuous(expand = expansion(mult = c(0, 0.1)))
+  
+  return(plot1)
+}
+
+#------------------------------------------------
+#' @title Draw from Chinese restaurant process
+#'
+#' @description Draw a partition of n values from the Chinese restaurant process
+#'   with concentration parameter \code{alpha}.
+#'
+#' @param n the number of random draws.
+#' @param alpha the concentration parameter of the process.
+#'
+#' @export
+
+rCRP <- function(n, alpha = 1) {
+  
+  # check inputs
+  assert_single_pos_int(n, zero_allowed = FALSE)
+  assert_single_pos(alpha)
+  
+  # draw values sequentially
+  ret <- rep(NA, n)
+  f <- alpha
+  lf <- 1
+  for (i in 1:n) {
+    x <- sample.int(lf, 1, prob = f)
+    if (x == lf) {
+      f[x] <- 1
+      f <- c(f, alpha)
+      lf <- lf + 1
+    } else {
+      f[x] <- f[x] + 1
+    }
+    ret[i] <- x
+  }
+  
+  return(ret)
+}
+
+#------------------------------------------------
+#' @title Draw from Dirichlet process mixture model
+#'
+#' @description Draw a series of point from the d-dimensional Dirichlet process
+#'   with normal prior and normal mixture components.
+#'
+#' @param n the number of random draws.
+#' @param alpha the concentration parameter of the process.
+#' @param d the number of dimensions.
+#' @param tau the standard deviation of the symmetric normal prior on component
+#'   means.
+#' @param sigma the standard deviation of the symmetric normal mixture
+#'   distribution. Equal for all components.
+#'
+#' @export
+
+rDPM <- function(n, alpha = 1, d = 1, tau = 10, sigma = 1) {
+  
+  # check inputs
+  assert_single_pos_int(n, zero_allowed = FALSE)
+  assert_single_pos(alpha)
+  assert_single_pos_int(d, zero_allowed = FALSE)
+  assert_single_pos(tau)
+  assert_single_pos(sigma)
+  
+  # draw group alloction from Chinese restaurant process
+  c <- rCRP(n, alpha = alpha)
+  k <- length(unique(c))
+  
+  # draw mixture component means
+  mu <- matrix(rnorm(k*d, sd = tau), ncol = d)
+  
+  # draw values from mixture components
+  x <- apply(mu[c,,drop = FALSE], 2, function(x) {
+    rnorm(length(x), mean = x, sd = sigma)
+  })
+  
+  # return as list
+  ret <- list(group = c,
+              ngroup = k,
+              mu = mu,
+              x = x)
+  
+  return(ret)
+}

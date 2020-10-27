@@ -25,6 +25,8 @@ rinvgamma(n, alpha, beta)
 
 \item{log_on}{logical; if \code{TRUE} values are returned logged.}
 
+\item{q}{vector of quantiles}
+
 \item{lower_tail}{logical; if \code{TRUE} (default) probabilities are
 \emph{P[X <= x]} otherwise \emph{P[X > x]}.}
 
