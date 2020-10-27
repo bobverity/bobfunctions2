@@ -4,11 +4,13 @@
 \alias{plot_density}
 \title{Quick plot of density distribution}
 \usage{
-plot_density(dist, ...)
+plot_density(dist, qrange = c(0.01, 0.99), ...)
 }
 \arguments{
 \item{dist}{the name of the distribution family. For exapmle \code{"norm"}
 can be used to explore the \code{dnorm()} density.}
+
+\item{qrange}{the quantile range over which to plot.}
 
 \item{...}{further parameters to the distribution function.}
 }

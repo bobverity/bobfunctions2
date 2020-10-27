@@ -4,7 +4,7 @@
 \alias{func_header}
 \title{Produce function header text}
 \usage{
-func_header(type = 1)
+func_header(type = 1, copy_clipboard = FALSE)
 }
 \arguments{
 \item{type}{switches between the following text blocks:
@@ -14,6 +14,10 @@ func_header(type = 1)
   \item function not exported
   \item S3 method, e.g. \code{print.my_class()}
 }}
+
+\item{copy_clipboard}{whether the header text should also be copied to the
+clipboard. This should be \code{FALSE} when running on PC as it can cause R
+to crash.}
 }
 \description{
 Produce header text for a single function to paste into script
