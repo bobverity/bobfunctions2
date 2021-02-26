@@ -1465,7 +1465,7 @@ cubic_spline <- function(x, y, x_pred) {
   s <- rep(NA, length(x_pred))
   j <- 1
   for (i in seq_along(x_pred)) {
-    if (x_pred[i] > x[j+1]) {
+    while (x_pred[i] > x[j+1]) {
       j <- j + 1
     }
     s[i] <- y[j] + b[j]*(x_pred[i] - x[j]) + c[j]*(x_pred[i] - x[j])^2 + d[j]*(x_pred[i] - x[j])^3
