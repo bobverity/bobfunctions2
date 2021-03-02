@@ -1610,7 +1610,7 @@ rinvgamma <- function(n, alpha, beta) {
 plot_density <- function(dist, qrange = c(0.01, 0.99), ...) {
   
   # check inputs
-  assert_in(dist, c("norm", "lnorm", "gamma", "invgamma"))
+  assert_in(dist, c("norm", "lnorm", "gamma", "invgamma", "exp", "weibull"))
   assert_limit(qrange)
   assert_bounded(qrange, inclusive_left = FALSE, inclusive_right = FALSE)
   
