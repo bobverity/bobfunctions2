@@ -1741,21 +1741,23 @@ rDPM <- function(n, alpha = 1, d = 1, tau = 10, sigma = 1) {
 #'   easily.
 #'   
 #' @param x1,x2 two numeric vecors.
+#' @param nsmall number of digits to the right of decimal point that numbers are
+#'   formatted to.
 #'
 #' @export
 
-check_data_entry <- function(x1, x2) {
+check_data_entry <- function(x1, x2, nsmall) {
   
   # check inputs
   assert_vector_numeric(x1)
   assert_vector_numeric(x2)
   assert_same_length(x1, x2)
+  assert_single_pos_int(nsmall, zero_allowed = TRUE)
   
   # get vectors into characters with same number of digits
   n <- length(x1)
-  x_char <- format(c(x1, x2), scientific = FALSE)
-  x1_char <- x_char[1:n]
-  x2_char <- x_char[-(1:n)]
+  x1_char <- format(x1, nsmall = nsmall, scientific = FALSE)
+  x2_char <- format(x2, nsmall = nsmall, scientific = FALSE)
   
   # split into characters
   l1 <- strsplit(gsub("\\.", "", x1_char), "")
