@@ -1724,3 +1724,55 @@ rDPM <- function(n, alpha = 1, d = 1, tau = 10, sigma = 1) {
   
   return(ret)
 }
+
+#------------------------------------------------
+#' @title Check numerical series for basic data entry mistakes
+#'
+#' @description Compares two numeric vectors. For numbers that differ by a
+#'   single digit, returns the "depth" of this digit from the end of the number
+#'   (i.e. 1.234 vs. 1.334 would have a depth of 3). Identical numbers return 0,
+#'   and numbers that differ by more than one digit return NA.
+#'   
+#' @details A clue that a data entry mistake has occurred is if two numbers are
+#'   identical at all digits except for a single digit. This clue is stronger if
+#'   the digit is towards the middle of the number, as the chance of two random
+#'   numbers being identical at many subsequent digits is small. This function
+#'   can be used to flag these values which can then be checked by hand more
+#'   easily.
+#'   
+#' @param x1,x2 two numeric vecors.
+#'
+#' @export
+
+check_data_entry <- function(x1, x2) {
+  
+  # check inputs
+  assert_vector_numeric(x1)
+  assert_vector_numeric(x2)
+  assert_same_length(x1, x2)
+  
+  # get vectors into characters with same number of digits
+  n <- length(x1)
+  x_char <- format(c(x1, x2), scientific = FALSE)
+  x1_char <- x_char[1:n]
+  x2_char <- x_char[-(1:n)]
+  
+  # split into characters
+  l1 <- strsplit(gsub("\\.", "", x1_char), "")
+  l2 <- strsplit(gsub("\\.", "", x2_char), "")
+  maxchar <- length(l1[[1]])
+  
+  # find depth of differences
+  ret <- mapply(function(i) {
+    w <- which(l1[[i]] != l2[[i]])
+    ret <- NA
+    if (length(w) == 0) {
+      ret <- 0
+    } else if (length(w) == 1) {
+      ret <- maxchar + 1 - w
+    }
+    ret
+  }, seq_along(l1))
+  
+  ret
+}
