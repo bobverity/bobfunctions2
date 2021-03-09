@@ -4,10 +4,13 @@
 \alias{check_data_entry}
 \title{Check numerical series for basic data entry mistakes}
 \usage{
-check_data_entry(x1, x2)
+check_data_entry(x1, x2, nsmall)
 }
 \arguments{
 \item{x1, x2}{two numeric vecors.}
+
+\item{nsmall}{number of digits to the right of decimal point that numbers are
+formatted to.}
 }
 \description{
 Compares two numeric vectors. For numbers that differ by a
