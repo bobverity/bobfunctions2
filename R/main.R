@@ -1762,8 +1762,15 @@ check_data_entry <- function(x1, x2) {
   l2 <- strsplit(gsub("\\.", "", x2_char), "")
   maxchar <- length(l1[[1]])
   
+  # replace lists with NA in original series
+  l1[is.na(x1)] <- NA
+  l2[is.na(x2)] <- NA
+  
   # find depth of differences
   ret <- mapply(function(i) {
+    if (is.na(l1[[i]]) || is.na(l2[[i]])) {
+      return(NA)
+    }
     w <- which(l1[[i]] != l2[[i]])
     ret <- NA
     if (length(w) == 0) {
