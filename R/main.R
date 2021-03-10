@@ -1770,7 +1770,7 @@ check_data_entry <- function(x1, x2, nsmall) {
   
   # find depth of differences
   ret <- mapply(function(i) {
-    if (is.na(l1[[i]]) || is.na(l2[[i]])) {
+    if (is.na(l1[[i]][1]) || is.na(l2[[i]][1])) {
       return(NA)
     }
     w <- which(l1[[i]] != l2[[i]])
