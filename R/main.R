@@ -1785,3 +1785,20 @@ check_data_entry <- function(x1, x2, nsmall) {
   
   ret
 }
+
+#------------------------------------------------
+#' @title Find which elements are not shared between two sets
+#'
+#' @description The base \code{setdiff(vec1, vec2)} function is asymmetric in
+#'   the sense that it returns elements of \code{vec1} that are not found within
+#'   \code{vec2}, but it does not perform the reverse comparison. In contrast,
+#'   \code{setdiff_symmetric(vec1, vec2)} is symmetric in that it returns any
+#'   elements that are found in one vector but not the other.
+#'   
+#' @param x,y vectors (of the same mode) containing a sequence of items.
+#'
+#' @export
+
+setdiff_symmetric <- function(x, y) {
+  setdiff(union(x, y), intersect(x, y))
+}
