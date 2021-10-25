@@ -5,17 +5,11 @@
 
 using namespace Rcpp;
 
-// dummy1_cpp
-Rcpp::List dummy1_cpp(Rcpp::List args);
-RcppExport SEXP _bobfunctions2_dummy1_cpp(SEXP argsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type args(argsSEXP);
-    rcpp_result_gen = Rcpp::wrap(dummy1_cpp(args));
-    return rcpp_result_gen;
-END_RCPP
-}
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // sim_wrightfisher_cpp
 Rcpp::List sim_wrightfisher_cpp(Rcpp::List args, Rcpp::List args_functions, Rcpp::List args_progress);
 RcppExport SEXP _bobfunctions2_sim_wrightfisher_cpp(SEXP argsSEXP, SEXP args_functionsSEXP, SEXP args_progressSEXP) {
@@ -43,7 +37,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_bobfunctions2_dummy1_cpp", (DL_FUNC) &_bobfunctions2_dummy1_cpp, 1},
     {"_bobfunctions2_sim_wrightfisher_cpp", (DL_FUNC) &_bobfunctions2_sim_wrightfisher_cpp, 3},
     {"_bobfunctions2_box_blur_cpp", (DL_FUNC) &_bobfunctions2_box_blur_cpp, 2},
     {NULL, NULL, 0}

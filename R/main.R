@@ -1,18 +1,9 @@
 
 #------------------------------------------------
-# define basic package imports
-
-#' @import graphics
-#' @useDynLib bobfunctions2, .registration = TRUE
-#' @importFrom Rcpp sourceCpp
-NULL
-
-#------------------------------------------------
 #' @title Produce script header text
 #'
-#' @description Produce header text to paste into new script (automatically 
-#'   copied to the clipboard). Different header types are available for
-#'   different types of script (see below).
+#' @description Produce header text to copy and paste into new script. Different
+#'   header types are available for different types of script (see below).
 #'
 #' @param type switches between the following text blocks:
 #'   \itemize{
@@ -87,15 +78,15 @@ header <- function(type = 1, copy_clipboard = FALSE) {
 #------------------------------------------------
 #' @title Produce function header text
 #'
-#' @description Produce header text for a single function to paste into script
-#'   (automatically copied to the clipboard). Header text is written in roxygen
-#'   format.
+#' @description Produce header text for a single function to paste into script.
+#'   Different header types are available for different types of function (see
+#'   below). Header text is written in roxygen format.
 #'
 #' @param type switches between the following text blocks:
 #'   \enumerate{
 #'     \item basic function header
 #'     \item complete function header with all the bells and whistles
-#'     \item function not exported
+#'     \item function that is not exported
 #'     \item S3 method, e.g. \code{print.my_class()}
 #'   }
 #' @param copy_clipboard whether the header text should also be copied to the
@@ -217,10 +208,8 @@ func_header <- function(type = 1, copy_clipboard = FALSE) {
 #'   dimension. Values are included in a bin if they are >= the left break and <
 #'   the right break. Default breaks are chosen to encompass all the data.
 #'
-#' @param x first dimension of values to bin
-#' @param y second dimension of values to bin
-#' @param x_breaks set of breaks in x-dimension
-#' @param y_breaks set of breaks in y-dimension
+#' @param x,y first and second dimensions of values to bin.
+#' @param x_breaks,y_breaks set of breaks in x- and y-dimensions.
 #'
 #' @export
 
@@ -274,9 +263,8 @@ bin_2d <- function(x, y, x_breaks = NULL, y_breaks = NULL) {
 #' @description Expand range to include buffer. The buffer distance is defined
 #'   as a proportion of the range.
 #'
-#' @param x_min minimum of starting range
-#' @param x_max maximum of starting range
-#' @param buffer the proportional increase in the starting range
+#' @param x_min,x_max minimum and maximum of starting range.
+#' @param buffer the proportional increase in the starting range.
 #'
 #' @export
 
@@ -300,11 +288,11 @@ buffer_range <- function(x_min, x_max, buffer = 1.1) {
 #' @title Calculate pairwise great circle distance between points
 #'
 #' @description Analogue of the \code{dist()} function, but calculating great
-#'   circle distances. Points should be input as a two-column matrix or
-#'   dataframe with longitude in the first column and latitude in the second.
+#'   circle distances (distance on the surface of a sphere). Points are input as
+#'   longitude and latitude.
 #'
 #' @param x a two-column matrix or dataframe with longitude in the first column
-#'   and latitude in the second
+#'   and latitude in the second.
 #'
 #' @export
 
@@ -328,11 +316,9 @@ dist_gc <- function(x) {
 #' @description Calculate great circle distance and bearing between spatial
 #'   coordinates.
 #'
-#' @param origin_lon the origin longitude
-#' @param origin_lat the origin latitude
-#' @param dest_lon the destination longitude
-#' @param dest_lat the destination latitude
-#' @param earth_rad the assumed radius of the earth (km)
+#' @param origin_lon,origin_lat the origin longitude and latitude.
+#' @param dest_lon,dest_lat the destination longitude and latitude.
+#' @param earth_rad the assumed radius of the earth (km).
 #'
 #' @export
 
@@ -408,9 +394,7 @@ layout_mat <- function(n) {
 #'   (rotation) and \code{phi} (elevation), and the strength of perspective
 #'   transformation is given by \code{d}.
 #'
-#' @param x_lim x-limits of \code{persp()} plot.
-#' @param y_lim y-limits of \code{persp()} plot.
-#' @param z_lim z-limits of \code{persp()} plot.
+#' @param x_lim,y_lim,z_lim limits of \code{persp()} plot.
 #' @param theta angle of rotation (degrees).
 #' @param phi angle of elevation (degrees).
 #' @param d strength of perspective transformation.
@@ -446,14 +430,12 @@ get_projection <- function(x_lim, y_lim, z_lim, theta, phi, d = 2) {
 #' @title Project 3D coordinates to 2D
 #'
 #' @description Use a projection matrix to transform 3D world coordinates to 2D
-#'   coordinates - for example reprenting a camera viewing a 3D scene. See
+#'   coordinates - for example representing a camera viewing a 3D scene. See
 #'   \code{get_projection()} for how to obtain a projection mtarix. This
 #'   function is equivalent to the \code{trans3d()} function, but also stores
 #'   depth information relative to the camera.
 #'
-#' @param x x- world coordinates.
-#' @param y y- world coordinates.
-#' @param z z- world coordinates.
+#' @param x,y,z world coordinates.
 #' @param proj_mat 4*4 projection matrix, as returned from
 #'   \code{get_projection()}.
 #'
@@ -473,12 +455,8 @@ project_2d <- function(x, y, z, proj_mat) {
 #' @description Use \code{project2D} to project start and end points from 3D
 #'   world coordinates to 2D screen coordinates.
 #'
-#' @param x0 x-coordinates of start.
-#' @param y0 y-coordinates of start.
-#' @param z0 z-coordinates of start.
-#' @param x1 x-coordinates of end.
-#' @param y1 y-coordinates of end.
-#' @param z1 z-coordinates of end.
+#' @param x0,y0,z0 coordinates of start point.
+#' @param x1,y1,z1 coordinates of end point.
 #' @param proj_mat 4*4 projection matrix, as returned from
 #'   \code{get_projection()}.
 #'
@@ -512,15 +490,16 @@ project_2d_line <- function(x0, y0, z0, x1, y1, z1, proj_mat) {
 #'   specified (otherwise this is chosen automatically).
 #'
 #' @param myplot an object of class \code{ggplot}.
-#' @param x sequence of breaks \emph{or} a pair of start-end values \emph{or} a single value.
-#' @param y (see \code{x} parameter).
-#' @param z (see \code{x} parameter).
+#' @param x,y,z coordinates of lines. Values must be a sequence of breaks
+#'   \emph{or} a pair of start-end values \emph{or} a single value (see
+#'   details).
 #' @param proj_mat 4*4 projection matrix, as returned from
 #'   \code{get_projection()}.
 #' @param col line colour.
 #' @param size line size.
 #' @param break_axis which axis to apply breaks over. If \code{NULL} then chosen
-#'   automatically from other inputs, otherwise must be one of "x", "y" or "z".
+#'   automatically from other inputs, otherwise must be one of \code{"x"},
+#'   \code{"y"} or \code{"z"} (see details).
 #'
 #' @export
 
@@ -583,26 +562,18 @@ gg3d_add_grid_lines <- function(myplot, x = seq(0,1,0.1), y = c(0,1), z = 0,
 #'
 #' @description Produce a 3D scatterplot in ggplot format.
 #'
-#' @param x vector of values in the x-dimension.
-#' @param y vector of values in the y-dimension.
-#' @param z vector of values in the z-dimension.
+#' @param x,y,z vectors giving coordinates of points.
 #' @param colour vector specifying point colours. Can be continuous or discrete.
 #' @param size size of data points.
 #' @param theta angle of rotation (degrees).
 #' @param phi angle of elevation (degrees).
 #' @param d strength of perspective transformation.
-#' @param x_lim plotting limits in the x-dimension.
-#' @param y_lim plotting limits in the y-dimension.
-#' @param z_lim plotting limits in the z-dimension.
-#' @param x_grid sequence of x-breaks defining grid.
-#' @param y_grid sequence of y-breaks defining grid.
-#' @param z_grid sequence of z-breaks defining grid.
+#' @param x_lim,y_lim,z_lime plotting limits.
+#' @param x_grid,y_grid sequences of breaks defining grid.
 #' @param z_type switch between horizontal grid in the z-dimension (\code{z_type
 #'   = 1}) and both horizontal and vertical grid (\code{z_type = 2}).
-#' @param flip_grid_x if \code{TRUE} then the vertical grid in the x-axis is
-#'   moved to the other side of the plot.
-#' @param flip_grid_y if \code{TRUE} then the vertical grid in the y-axis is
-#'   moved to the other side of the plot.
+#' @param flip_grid_x,flip_grid_y if \code{TRUE} then the vertical grid in the
+#'   x- or y-axis is moved to the other side of the plot.
 #' @param grid_col the colour of grid lines.
 #' @param grid_size the size of grid lines.
 #' @param axis_on whether to draw axis lines.
@@ -611,9 +582,7 @@ gg3d_add_grid_lines <- function(myplot, x = seq(0,1,0.1), y = c(0,1), z = 0,
 #' @param zero_line_on whether to draw lines at zero in every dimension.
 #' @param zero_line_col the colour of zero lines.
 #' @param zero_line_size the size of zero lines.
-#' @param x_lab the x-axis label.
-#' @param y_lab the y-axis label.
-#' @param z_lab the z-axis label.
+#' @param x_lab,y_lab,z_lab axis labels.
 #' @param tick_length the absolute length of axis ticks.
 #' @param axis_lab_size the size of axis labels.
 #' @param axis_lab_dist the absolute distance of axis labels from the edge of
@@ -841,19 +810,19 @@ gg3d_scatterplot <- function(x, y, z, colour = 1, size = 0.5, theta = 135, phi =
 #------------------------------------------------
 #' @title Add inset plot to faceted ggplot
 #'
-#' @description Ordinarily ggplot is not setup to add inset plots (annotations) to faceted plots, because it wants to add the same inset to every facet. This custom annotation function makes it possible to add an inset to a single facet. Credit goes to \href{https://stackoverflow.com/users/471093/baptiste}{baptiste} for \href{https://stackoverflow.com/questions/37867758/insetting-on-facet-grided-and-grid-arrangeed-plot}{this} solution.
+#' @description Ordinarily ggplot is not setup to add inset plots (annotations)
+#'   to faceted plots because it wants to add the same inset to every facet.
+#'   This custom annotation function makes it possible to add an inset to a
+#'   single facet. Credit goes to
+#'   \href{https://stackoverflow.com/users/471093/baptiste}{baptiste} for
+#'   \href{https://stackoverflow.com/questions/37867758/insetting-on-facet-grided-and-grid-arrangeed-plot}{this}
+#'   solution.
 #'
 #' @param grob a ggplot object.
-#' @param xmin inset starts at this coordinate. Set to \code{-Inf} to always
-#'   start from far left edge.
-#' @param xmax inset ends at this coordinate. Set to \code{Inf} to always start
-#'   from far right edge.
-#' @param ymin inset starts at this coordinate. Set to \code{-Inf} to always
-#'   start from far bottom edge.
-#' @param ymax inset ends at this coordinate. Set to \code{Inf} to always start
-#'   from far top edge.
-#' @param data dataframe, should specify the value of the variable with which
-#'   the original plot is facetted (see examples).
+#' @param xmin,xmax,ymin,ymax coordinates at which the inset starts and ends.
+#'   Set to \code{-Inf} to always start from far edge.
+#' @param data (dataframe) should specify the value of the variable used to
+#'   facet the original plot (see examples).
 #'
 #' @import ggplot2
 #' @export
@@ -894,6 +863,14 @@ gg_inset <- function (grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, da
 
 dna_to_aa <- function(x, output_format = 1) {
   
+  # check inputs
+  assert_vector_string(x)
+  if (!all(mapply(nchar, z) == 4)) {
+    stop("every element of x must be a three-letter character sequence")
+  }
+  assert_in(output_format, c(1, 2))
+  
+  # define codon patterns
   v1 <- c("TTT", "TTC", "TTA", "TTG", "TCT", "TCC", "TCA", "TCG", "TAT", 
           "TAC", "TAA", "TAG", "TGT", "TGC", "TGA", "TGG", "CTT", "CTC", 
           "CTA", "CTG", "CCT", "CCC", "CCA", "CCG", "CAT", "CAC", "CAA", 
@@ -903,6 +880,7 @@ dna_to_aa <- function(x, output_format = 1) {
           "GCA", "GCG", "GAT", "GAC", "GAA", "GAG", "GGT", "GGC", "GGA", 
           "GGG")
   
+  # define translation
   if (output_format == 1) {
     v2 <- c("phe", "phe", "leu", "leu",
             "ser", "ser", "ser", "ser",
@@ -971,74 +949,72 @@ dna_complement <- function(x, format_rna = FALSE) {
 }
 
 #------------------------------------------------
-#' @title Simulate from simple Wright-Fisher model
+#' @title Simulate allele frequencies from Wright-Fisher model
 #'
-#' @description Simulate Wright-Fisher evolution. The model used here is
-#'   currently very basic and makes a number of simplifying assumptions, but may
-#'   be extended in future to add flexibility.
+#' @description Simulate Wright-Fisher evolution in a series of partially
+#'   connected demes.
 #'
-#' @details Currently assumes haploid population and independent loci (no
-#'   linkage disequilibrium). Initialises from symmetric Dirichlet(1) allele
-#'   frequencies at every locus. Due to the way migration is currently
-#'   implemented, \code{N} must be the same for all demes.
-#'
-#' @param N number of individuals per deme - currently must be the same for all
+#' @details Assumes a haploid population and independent loci (no linkage
+#'   disequilibrium). Implements a finite-alleles mutation model with equal
+#'   chance of mutating from any allele to any other. Initialises allele
+#'   frequencies by drawing from a symmetric Dirichlet(theta/k) distribution,
+#'   where \eqn{theta = 2*N*mu}, which is the analytical equilibrium
+#'   distribution between drift and finite-alleles mutation, ignoring migration
+#'   between demes. Migration is implemented by proposing random swaps of
+#'   individuals between demes, thereby ensuring population sizes remain
+#'   constant over time. For this reason, \code{N} must be the same for all
 #'   demes.
-#' @param L number of loci.
-#' @param alleles number of alleles. Can be single number for all loci, or
+#'   
+#' @param N number of individuals per deme. Must be the same for all
+#'   demes.
+#' @param L number of loci (assumed independent).
+#' @param alleles number of alleles. Can be a single number for all loci or a
 #'   vector of length \code{L}.
 #' @param mu mutation rate. Assumes finite-alleles model, with equal chance of
 #'   mutating from any allele to any other.
-#' @param m_matrix migration matrix specifying the per-generation probability of
+#' @param mig_mat migration matrix specifying the per-generation probability of
 #'   an individual migrating from any deme (in rows) to any other deme (in
 #'   columns).
 #' @param t_out vector of times at which results will be output.
-#' @param output_format choose the output format. 1 = counts, 2 = list of
-#'   genotypes over demes, 3 = matrix of genotypes over demes.
 #'
 #' @importFrom utils txtProgressBar
 #' @export
 
-sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_out, output_format = 3) {
+sim_wrightfisher <- function(N, L, alleles, mu, mig_mat, t_out) {
   
   # check inputs
-  assert_vector(N)
-  assert_pos_int(N, zero_allowed = FALSE)
-  if (any(N != N[1])) {
-    stop("due to the way migration is implemented, the model is currently limited to using the same number of individuals in every deme")
-  }
+  assert_single_pos_int(N, zero_allowed = FALSE)
   assert_single_pos_int(L, zero_allowed = FALSE)
-  assert_vector(alleles)
-  assert_pos_int(alleles, zero_allowed = FALSE)
+  assert_vector_pos_int(alleles, zero_allowed = FALSE)
   assert_gr(alleles, 1)
   assert_single_bounded(mu)
-  assert_symmetric_matrix(m_matrix)
-  assert_dim(m_matrix, rep(length(N),2))
-  assert_bounded(m_matrix)
-  if (!all(rowSums(m_matrix) == 1)) {
-    stop("every row of m_matrix must sum to 1")
+  assert_symmetric_matrix(mig_mat)
+  assert_bounded(mig_mat)
+  if (!all(rowSums(mig_mat) == 1)) {
+    stop("every row of mig_mat must sum to 1")
   }
-  assert_vector(t_out)
-  assert_pos_int(t_out, zero_allowed = FALSE)
-  assert_in(output_format, 1:3)
+  assert_vector_pos_int(t_out, zero_allowed = TRUE)
   
   # process some inputs
   if (length(alleles) == 1) {
     alleles <- rep(alleles, L)
   }
   assert_length(alleles, L)
-  K <- length(N)
+  
+  # get number of demes from dimensions of migration matrix
+  K <- ncol(mig_mat)
   
   # make argument list
   args <- list(N = N,
+               K = K,
                L = L,
                alleles = alleles,
                mu = mu,
-               m_matrix = matrix_to_rcpp(m_matrix),
+               mig_mat = matrix_to_rcpp(mig_mat),
                t_out = t_out)
   
   # create progress bars
-  pb <- txtProgressBar(min = 0, max = max(t_out)-1, initial = NA, style = 3)
+  pb <- txtProgressBar(min = 0, max = max(c(1, t_out)), initial = NA, style = 3)
   args_progress <- list(pb = pb)
   
   # functions to pass to C++
@@ -1047,49 +1023,17 @@ sim_wrightfisher <- function(N, L, alleles, mu, m_matrix, t_out, output_format =
   # run efficient C++ function
   output_raw <- sim_wrightfisher_cpp(args, args_functions, args_progress)
   
-  # process results
-  output_processed <- mapply(function(t) {
-    ret <- mapply(function(i, t) {
-      ret <- t(mapply(function(x) x[[i]], output_raw$pop[[t]]))
-      colnames(ret) <- paste0("a", 1:ncol(ret))
-      rownames(ret) <- paste0("deme", 1:nrow(ret))
-      return(ret)
-    }, 1:L, t = t, SIMPLIFY = FALSE)
-    names(ret) <- paste0("locus", 1:length(ret))
-    return(ret)
-  }, 1:length(t_out), SIMPLIFY = FALSE)
-  names(output_processed) <- paste0("t", t_out)
-  
-  # format 2
-  if (output_format %in% c(2,3)) {
-    
-    output_processed <- mapply(function(t) {
-      ret <- mapply(function(k,t) {
-        ret <- mapply(function(x,k) {
-          sample(rep(1:ncol(x), times = x[k,]))
-        }, output_processed[[t]], k = k)
-        rownames(ret) <- paste0("ind", 1:nrow(ret))
-        return(ret)
-      }, 1:K, t = t, SIMPLIFY = FALSE)
-      names(ret) <- paste0("deme", 1:K)
-      return(ret)
-    }, 1:length(t_out), SIMPLIFY = FALSE)
-    names(output_processed) <- paste0("time", t_out)
-    
-  }
-  
-  # format 3
-  if (output_format == 3) {
-    
-    output_processed <- mapply(function(x) {
-      ret <- do.call(rbind, x)
-      ret <- cbind(rep(1:length(x), times = mapply(nrow, x)), ret)
-      colnames(ret)[1] <- "deme"
-      return(ret)
-    }, output_processed, SIMPLIFY = FALSE)
-    names(output_processed) <- paste0("time", t_out)
-    
-  }
+  # process output
+  output_processed <- mapply(function(t_i) {
+    mapply(function(k) {
+      data.frame(time = t_out[t_i],
+                 deme = k,
+                 locus = rep(seq_len(L), times = alleles),
+                 allele = unlist(lapply(alleles, seq_len)),
+                 count = unlist(output_raw$allele_counts[[t_i]][[k]]))
+    }, seq_len(K), SIMPLIFY = FALSE)
+  }, seq_along(t_out), SIMPLIFY = FALSE) %>%
+    dplyr::bind_rows()
   
   return(output_processed)
 }

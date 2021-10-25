@@ -14,7 +14,8 @@ Imports:
     RColorBrewer,
     Rcpp,
     coda,
-    ggplot2
+    ggplot2,
+    dplyr
 SystemRequirements: C++11
 Suggests: 
     testthat,

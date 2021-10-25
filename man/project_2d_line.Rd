@@ -7,17 +7,9 @@
 project_2d_line(x0, y0, z0, x1, y1, z1, proj_mat)
 }
 \arguments{
-\item{x0}{x-coordinates of start.}
+\item{x0, y0, z0}{coordinates of start point.}
 
-\item{y0}{y-coordinates of start.}
-
-\item{z0}{z-coordinates of start.}
-
-\item{x1}{x-coordinates of end.}
-
-\item{y1}{y-coordinates of end.}
-
-\item{z1}{z-coordinates of end.}
+\item{x1, y1, z1}{coordinates of end point.}
 
 \item{proj_mat}{4*4 projection matrix, as returned from
 \code{get_projection()}.}

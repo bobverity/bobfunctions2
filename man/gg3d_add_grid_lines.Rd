@@ -18,11 +18,9 @@ gg3d_add_grid_lines(
 \arguments{
 \item{myplot}{an object of class \code{ggplot}.}
 
-\item{x}{sequence of breaks \emph{or} a pair of start-end values \emph{or} a single value.}
-
-\item{y}{(see \code{x} parameter).}
-
-\item{z}{(see \code{x} parameter).}
+\item{x, y, z}{coordinates of lines. Values must be a sequence of breaks
+\emph{or} a pair of start-end values \emph{or} a single value (see
+details).}
 
 \item{proj_mat}{4*4 projection matrix, as returned from
 \code{get_projection()}.}
@@ -32,7 +30,8 @@ gg3d_add_grid_lines(
 \item{size}{line size.}
 
 \item{break_axis}{which axis to apply breaks over. If \code{NULL} then chosen
-automatically from other inputs, otherwise must be one of "x", "y" or "z".}
+automatically from other inputs, otherwise must be one of \code{"x"},
+\code{"y"} or \code{"z"} (see details).}
 }
 \description{
 Add grid lines to a ggplot perspective plot.

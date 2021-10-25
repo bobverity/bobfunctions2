@@ -11,7 +11,7 @@ func_header(type = 1, copy_clipboard = FALSE)
 \enumerate{
   \item basic function header
   \item complete function header with all the bells and whistles
-  \item function not exported
+  \item function that is not exported
   \item S3 method, e.g. \code{print.my_class()}
 }}
 
@@ -20,7 +20,7 @@ clipboard. This should be \code{FALSE} when running on PC as it can cause R
 to crash.}
 }
 \description{
-Produce header text for a single function to paste into script
-  (automatically copied to the clipboard). Header text is written in roxygen
-  format.
+Produce header text for a single function to paste into script.
+  Different header types are available for different types of function (see
+  below). Header text is written in roxygen format.
 }

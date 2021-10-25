@@ -7,13 +7,9 @@
 bin_2d(x, y, x_breaks = NULL, y_breaks = NULL)
 }
 \arguments{
-\item{x}{first dimension of values to bin}
+\item{x, y}{first and second dimensions of values to bin.}
 
-\item{y}{second dimension of values to bin}
-
-\item{x_breaks}{set of breaks in x-dimension}
-
-\item{y_breaks}{set of breaks in y-dimension}
+\item{x_breaks, y_breaks}{set of breaks in x- and y-dimensions.}
 }
 \description{
 Bin values in two dimensions based on a vector of breaks in each

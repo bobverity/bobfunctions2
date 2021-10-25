@@ -19,7 +19,6 @@ clipboard. This should be \code{FALSE} when running on PC as it can cause R
 to crash.}
 }
 \description{
-Produce header text to paste into new script (automatically 
-  copied to the clipboard). Different header types are available for
-  different types of script (see below).
+Produce header text to copy and paste into new script. Different
+  header types are available for different types of script (see below).
 }
