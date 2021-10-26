@@ -8,10 +8,10 @@ dist_gc(x)
 }
 \arguments{
 \item{x}{a two-column matrix or dataframe with longitude in the first column
-and latitude in the second}
+and latitude in the second.}
 }
 \description{
 Analogue of the \code{dist()} function, but calculating great
-  circle distances. Points should be input as a two-column matrix or
-  dataframe with longitude in the first column and latitude in the second.
+  circle distances (distance on the surface of a sphere). Points are input as
+  longitude and latitude.
 }

@@ -7,15 +7,11 @@
 lonlat_to_bearing(origin_lon, origin_lat, dest_lon, dest_lat, earth_rad = 6371)
 }
 \arguments{
-\item{origin_lon}{the origin longitude}
+\item{origin_lon, origin_lat}{the origin longitude and latitude.}
 
-\item{origin_lat}{the origin latitude}
+\item{dest_lon, dest_lat}{the destination longitude and latitude.}
 
-\item{dest_lon}{the destination longitude}
-
-\item{dest_lat}{the destination latitude}
-
-\item{earth_rad}{the assumed radius of the earth (km)}
+\item{earth_rad}{the assumed radius of the earth (km).}
 }
 \description{
 Calculate great circle distance and bearing between spatial

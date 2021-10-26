@@ -39,11 +39,7 @@ gg3d_scatterplot(
 )
 }
 \arguments{
-\item{x}{vector of values in the x-dimension.}
-
-\item{y}{vector of values in the y-dimension.}
-
-\item{z}{vector of values in the z-dimension.}
+\item{x, y, z}{vectors giving coordinates of points.}
 
 \item{colour}{vector specifying point colours. Can be continuous or discrete.}
 
@@ -55,26 +51,15 @@ gg3d_scatterplot(
 
 \item{d}{strength of perspective transformation.}
 
-\item{x_lim}{plotting limits in the x-dimension.}
+\item{x_lim, y_lim, z_lime}{plotting limits.}
 
-\item{y_lim}{plotting limits in the y-dimension.}
-
-\item{z_lim}{plotting limits in the z-dimension.}
-
-\item{x_grid}{sequence of x-breaks defining grid.}
-
-\item{y_grid}{sequence of y-breaks defining grid.}
-
-\item{z_grid}{sequence of z-breaks defining grid.}
+\item{x_grid, y_grid}{sequences of breaks defining grid.}
 
 \item{z_type}{switch between horizontal grid in the z-dimension (\code{z_type
 = 1}) and both horizontal and vertical grid (\code{z_type = 2}).}
 
-\item{flip_grid_x}{if \code{TRUE} then the vertical grid in the x-axis is
-moved to the other side of the plot.}
-
-\item{flip_grid_y}{if \code{TRUE} then the vertical grid in the y-axis is
-moved to the other side of the plot.}
+\item{flip_grid_x, flip_grid_y}{if \code{TRUE} then the vertical grid in the
+x- or y-axis is moved to the other side of the plot.}
 
 \item{grid_col}{the colour of grid lines.}
 
@@ -92,11 +77,7 @@ moved to the other side of the plot.}
 
 \item{axis_size}{the size of axis lines.}
 
-\item{x_lab}{the x-axis label.}
-
-\item{y_lab}{the y-axis label.}
-
-\item{z_lab}{the z-axis label.}
+\item{x_lab, y_lab, z_lab}{axis labels.}
 
 \item{tick_length}{the absolute length of axis ticks.}
 

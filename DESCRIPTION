@@ -1,7 +1,7 @@
 Package: bobfunctions2
 Type: Package
 Title: Bob's utility functions
-Version: 1.1.0
+Version: 1.1.1
 Author: Bob Verity
 Maintainer: Bob Verity <r.verity@imperial.ac.uk>
 Description: A bunch of useful functions that make everyday coding easier.
@@ -14,7 +14,8 @@ Imports:
     RColorBrewer,
     Rcpp,
     coda,
-    ggplot2
+    ggplot2,
+    dplyr
 SystemRequirements: C++11
 Suggests: 
     testthat,

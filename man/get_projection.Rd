@@ -7,11 +7,7 @@
 get_projection(x_lim, y_lim, z_lim, theta, phi, d = 2)
 }
 \arguments{
-\item{x_lim}{x-limits of \code{persp()} plot.}
-
-\item{y_lim}{y-limits of \code{persp()} plot.}
-
-\item{z_lim}{z-limits of \code{persp()} plot.}
+\item{x_lim, y_lim, z_lim}{limits of \code{persp()} plot.}
 
 \item{theta}{angle of rotation (degrees).}
 

@@ -9,23 +9,20 @@ gg_inset(grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, data)
 \arguments{
 \item{grob}{a ggplot object.}
 
-\item{xmin}{inset starts at this coordinate. Set to \code{-Inf} to always
-start from far left edge.}
+\item{xmin, xmax, ymin, ymax}{coordinates at which the inset starts and ends.
+Set to \code{-Inf} to always start from far edge.}
 
-\item{xmax}{inset ends at this coordinate. Set to \code{Inf} to always start
-from far right edge.}
-
-\item{ymin}{inset starts at this coordinate. Set to \code{-Inf} to always
-start from far bottom edge.}
-
-\item{ymax}{inset ends at this coordinate. Set to \code{Inf} to always start
-from far top edge.}
-
-\item{data}{dataframe, should specify the value of the variable with which
-the original plot is facetted (see examples).}
+\item{data}{(dataframe) should specify the value of the variable used to
+facet the original plot (see examples).}
 }
 \description{
-Ordinarily ggplot is not setup to add inset plots (annotations) to faceted plots, because it wants to add the same inset to every facet. This custom annotation function makes it possible to add an inset to a single facet. Credit goes to \href{https://stackoverflow.com/users/471093/baptiste}{baptiste} for \href{https://stackoverflow.com/questions/37867758/insetting-on-facet-grided-and-grid-arrangeed-plot}{this} solution.
+Ordinarily ggplot is not setup to add inset plots (annotations)
+  to faceted plots because it wants to add the same inset to every facet.
+  This custom annotation function makes it possible to add an inset to a
+  single facet. Credit goes to
+  \href{https://stackoverflow.com/users/471093/baptiste}{baptiste} for
+  \href{https://stackoverflow.com/questions/37867758/insetting-on-facet-grided-and-grid-arrangeed-plot}{this}
+  solution.
 }
 \examples{
 # produce main plot and inset plot
