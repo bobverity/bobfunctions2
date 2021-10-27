@@ -1,5 +1,5 @@
 
-#include "probability_v12.h"
+#include "probability_v13.h"
 #include "misc_v11.h"
 
 using namespace std;
@@ -66,7 +66,11 @@ std::vector<int> rmultinom1(int N, const std::vector<double> &p, double p_sum) {
   int k = int(p.size());
   std::vector<int> ret(k);
   for (int i = 0; i < (k - 1); ++i) {
-    ret[i] = rbinom1(N, p[i] / p_sum);
+    if (p[i] >= p_sum) {
+      ret[i] = N;
+    } else {
+      ret[i] = rbinom1(N, p[i] / p_sum);
+    }
     N -= ret[i];
     if (N == 0) {
       break;
