@@ -70,11 +70,7 @@ std::vector<int> rmultinom1(int N, const std::vector<double> &p, double p_sum) {
   int k = int(p.size());
   std::vector<int> ret(k);
   for (int i = 0; i < (k - 1); ++i) {
-    //if (p[i] >= p_sum) {
-    //  ret[i] = N;
-    //} else {
-      ret[i] = rbinom1(N, p[i] / p_sum);
-    //}
+    ret[i] = rbinom1(N, p[i] / p_sum);
     N -= ret[i];
     if (N == 0) {
       break;
@@ -470,15 +466,20 @@ double dpois1(int n, double lambda, bool return_log) {
 //------------------------------------------------
 // draw from symmetric dichlet(alpha) distribution of length n
 std::vector<double> rdirichlet1(double alpha, int n) {
+  // use stick-breaking construction. Although this is marginally slower than
+  // the gamma random variable method, it is robust to small values of alpha
   std::vector<double> ret(n);
-  double retSum = 0;
-  for (int i = 0; i < n; i++) {
-    ret[i] = rgamma1(alpha, 1.0);
-    retSum += ret[i];
+  double stick_remaining = 1.0;
+  for (int i = 0; i < (n - 1); ++i) {
+    double x = rbeta1(alpha, (n - 1 - i)*alpha);
+    ret[i] = stick_remaining * x;
+    stick_remaining -= x;
+    if (stick_remaining <= 0) {
+      stick_remaining = 0;
+      break;
+    }
   }
-  for (int i = 0; i < n; i++) {
-    ret[i] /= retSum;
-  }
+  ret[n - 1] = stick_remaining;
   return ret;
 }
 
