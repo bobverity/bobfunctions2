@@ -27,8 +27,8 @@ Rcpp::List sim_wrightfisher_cpp(Rcpp::List args, Rcpp::List args_functions, Rcpp
   // objects for storing results
   vector<vector<vector<vector<int>>>> allele_counts_store(n_t_out);
   
-  // initialise allele counts in each deme from the mutation-drift equilibrium
-  // distribution without migration
+  // initialise allele counts in each deme from the equilibrium distribution
+  // between mutation and drift (ignoring migration)
   double theta = 2*N*mu;
   vector<vector<vector<int>>> allele_counts(K);
   for (int k = 0; k < K; ++k) {
