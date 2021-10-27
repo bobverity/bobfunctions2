@@ -976,11 +976,12 @@ dna_complement <- function(x, format_rna = FALSE) {
 #'   an individual migrating from any deme (in rows) to any other deme (in
 #'   columns).
 #' @param t_out vector of times at which results will be output.
+#' @param silent if \code{TRUE} then suppress output to console.
 #'
 #' @importFrom utils txtProgressBar
 #' @export
 
-sim_wrightfisher <- function(N, L, alleles, mu, mig_mat, t_out) {
+sim_wrightfisher <- function(N, L, alleles, mu, mig_mat, t_out, silent = FALSE) {
   
   # check inputs
   assert_single_pos_int(N, zero_allowed = FALSE)
@@ -994,6 +995,7 @@ sim_wrightfisher <- function(N, L, alleles, mu, mig_mat, t_out) {
     stop("every row of mig_mat must sum to 1")
   }
   assert_vector_pos_int(t_out, zero_allowed = TRUE)
+  assert_single_logical(silent)
   
   # process some inputs
   if (length(alleles) == 1) {
@@ -1011,7 +1013,8 @@ sim_wrightfisher <- function(N, L, alleles, mu, mig_mat, t_out) {
                alleles = alleles,
                mu = mu,
                mig_mat = matrix_to_rcpp(mig_mat),
-               t_out = t_out)
+               t_out = t_out,
+               silent = silent)
   
   # create progress bars
   pb <- txtProgressBar(min = 0, max = max(c(1, t_out)), initial = NA, style = 3)
