@@ -21,6 +21,7 @@ Rcpp::List sim_wrightfisher_cpp(Rcpp::List args, Rcpp::List args_functions, Rcpp
   vector<vector<double>> mig_mat = rcpp_to_matrix_double(args("mig_mat"));
   vector<int> t_out = rcpp_to_vector_int(args("t_out"));
   int n_t_out = t_out.size();
+  bool silent = rcpp_to_bool(args["silent"]);
   Rcpp::Function update_progress = args_functions["update_progress"];
   
   // objects for storing results
@@ -60,7 +61,9 @@ Rcpp::List sim_wrightfisher_cpp(Rcpp::List args, Rcpp::List args_functions, Rcpp
   for (int t = 1; t < (max(t_out) + 1); ++t) {
     
     // report progress
-    update_progress(args_progress, "pb", t, max(t_out));
+    if (!silent) {
+      update_progress(args_progress, "pb", t, max(t_out));
+    }
     
     // apply migration
     for (int j = 0; j < mig_list.size(); ++j) {
@@ -80,7 +83,7 @@ Rcpp::List sim_wrightfisher_cpp(Rcpp::List args, Rcpp::List args_functions, Rcpp
           int tmp3 = N;
           int tmp4 = N;
           for (int i = 0; i < alleles[l]; ++i) {
-            
+           
             // subtract migrants from deme1
             int n_mig_i1 = rhyper1(allele_counts[k1][l][i], tmp3 - allele_counts[k1][l][i], tmp1);
             tmp1 -= n_mig_i1;
@@ -109,15 +112,19 @@ Rcpp::List sim_wrightfisher_cpp(Rcpp::List args, Rcpp::List args_functions, Rcpp
         
         // apply drift by drawing from multinomial distribution with probabilities
         // given by previous generation frequencies
-        int tmp = N;
+        int draws_remaining = N;
+        int N_remaining = N;
         for (int i = 0; i < (alleles[l] - 1); ++i) {
-          allele_counts[k][l][i] = rbinom1(tmp, allele_counts[k][l][i] / (double)tmp);
-          tmp -= allele_counts[k][l][i];
-          if (tmp == 0) {
+          int count_new = rbinom1(draws_remaining, allele_counts[k][l][i] / (double)N_remaining);
+          N_remaining -= allele_counts[k][l][i];
+          draws_remaining -= count_new;
+          allele_counts[k][l][i] = count_new;
+          
+          if (N_remaining == 0) {
             break;
           }
         }
-        allele_counts[k][l][alleles[l] - 1] = tmp;
+        allele_counts[k][l][alleles[l] - 1] = draws_remaining;
         
         // apply mutation
         if (mu > 0) {
@@ -125,30 +132,28 @@ Rcpp::List sim_wrightfisher_cpp(Rcpp::List args, Rcpp::List args_functions, Rcpp
           if (n_mut > 0) {
             
             // subtract mutants from existing counts
-            int tmp1 = n_mut;
-            int tmp2 = N;
+            int draws_remaining = n_mut;
+            int N_remaining = N;
             for (int i = 0; i < (alleles[l] - 1); ++i) {
-              int n_mut_i = rbinom1(tmp1, allele_counts[k][l][i] / (double)tmp2);
-              tmp2 -= allele_counts[k][l][i];
+              int n_mut_i = rbinom1(draws_remaining, allele_counts[k][l][i] / (double)N_remaining);
+              N_remaining -= allele_counts[k][l][i];
+              draws_remaining -= n_mut_i;
               allele_counts[k][l][i] -= n_mut_i;
-              tmp1 -= n_mut_i;
-              if (tmp1 == 0) {
+              
+              if (N_remaining == 0) {
                 break;
               }
             }
-            allele_counts[k][l][alleles[l] - 1] -= tmp1;
+            allele_counts[k][l][alleles[l] - 1] -= draws_remaining;
             
             // add new mutants to allele counts
-            tmp1 = n_mut;
+            draws_remaining = n_mut;
             for (int i = 0; i < (alleles[l] - 1); ++i) {
-              int n_mut_i = rbinom1(tmp1, 1.0 / double(alleles[l] - i));
-              tmp1 -= n_mut_i;
+              int n_mut_i = rbinom1(draws_remaining, 1.0 / double(alleles[l] - i));
+              draws_remaining -= n_mut_i;
               allele_counts[k][l][i] += n_mut_i;
-              if (tmp1 == 0) {
-                break;
-              }
             }
-            allele_counts[k][l][alleles[l] - 1] += tmp1;
+            allele_counts[k][l][alleles[l] - 1] += draws_remaining;
             
           }
         }
