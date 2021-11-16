@@ -865,7 +865,7 @@ dna_to_aa <- function(x, output_format = 1) {
   
   # check inputs
   assert_vector_string(x)
-  if (!all(mapply(nchar, z) == 4)) {
+  if (!all(mapply(nchar, x) == 3)) {
     stop("every element of x must be a three-letter character sequence")
   }
   assert_in(output_format, c(1, 2))
