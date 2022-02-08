@@ -51,9 +51,9 @@ gg3d_scatterplot(
 
 \item{d}{strength of perspective transformation.}
 
-\item{x_lim, y_lim, z_lime}{plotting limits.}
+\item{x_lim, y_lim, z_lim}{plotting limits.}
 
-\item{x_grid, y_grid}{sequences of breaks defining grid.}
+\item{x_grid, y_grid, z_grid}{sequences of breaks defining grid.}
 
 \item{z_type}{switch between horizontal grid in the z-dimension (\code{z_type
 = 1}) and both horizontal and vertical grid (\code{z_type = 2}).}

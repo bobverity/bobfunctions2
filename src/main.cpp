@@ -1,7 +1,7 @@
 
 #include "main.h"
-#include "misc_v11.h"
-#include "probability_v13.h"
+#include "misc_v12.h"
+#include "probability_v16.h"
 
 using namespace std;
 
@@ -21,23 +21,39 @@ Rcpp::List sim_wrightfisher_cpp(Rcpp::List args, Rcpp::List args_functions, Rcpp
   vector<vector<double>> mig_mat = rcpp_to_matrix_double(args("mig_mat"));
   vector<int> t_out = rcpp_to_vector_int(args("t_out"));
   int n_t_out = t_out.size();
+  int initial_method = rcpp_to_int(args("initial_method"));
+  vector<vector<double>> initial_params = rcpp_to_matrix_double(args("initial_params"));
   bool silent = rcpp_to_bool(args["silent"]);
   Rcpp::Function update_progress = args_functions["update_progress"];
   
   // objects for storing results
   vector<vector<vector<vector<int>>>> allele_counts_store(n_t_out);
   
-  // initialise allele counts in each deme from the equilibrium distribution
-  // between mutation and drift (ignoring migration)
-  double theta = 2*N*mu;
+  // initialise allele counts in each deme based on input method
   vector<vector<vector<int>>> allele_counts(K);
-  for (int k = 0; k < K; ++k) {
-    allele_counts[k] = vector<vector<int>>(L);
-    for (int l = 0; l < L; ++l) {
-      vector<double> p = rdirichlet1(theta / (double)alleles[l], alleles[l]);
-      allele_counts[k][l] = rmultinom1(N, p);
+  if (initial_method == 1) {
+    double theta = 2*N*mu;
+    for (int k = 0; k < K; ++k) {
+      allele_counts[k] = vector<vector<int>>(L);
+      for (int l = 0; l < L; ++l) {
+        vector<double> p = rdirichlet1(theta / (double)alleles[l], alleles[l]);
+        allele_counts[k][l] = rmultinom1(N, p);
+      }
+    }
+  } else if (initial_method == 2) {
+    for (int k = 0; k < K; ++k) {
+      allele_counts[k] = vector<vector<int>>(L);
+      if (k == 0) {
+        for (int l = 0; l < L; ++l) {
+          vector<double> p = rdirichlet2(initial_params[l]);
+          allele_counts[k][l] = rmultinom1(N, p);
+        }
+      } else {
+        allele_counts[k] = allele_counts[0];
+      }
     }
   }
+  
   
   // create list of all pairwise demes that have positive migration rates
   vector<pair<pair<int, int>, double>> mig_list;

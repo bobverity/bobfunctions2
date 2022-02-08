@@ -11,3 +11,4 @@ NULL
 .onUnload <- function(libpath) {
   library.dynam.unload("bobfunctions2", libpath)
 }
+
