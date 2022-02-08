@@ -400,6 +400,7 @@ layout_mat <- function(n) {
 #' @param d strength of perspective transformation.
 #'
 #' @importFrom grDevices dev.off jpeg
+#' @importFrom graphics persp
 #' @export
 
 get_projection <- function(x_lim, y_lim, z_lim, theta, phi, d = 2) {
@@ -507,7 +508,7 @@ gg3d_add_grid_lines <- function(myplot, x = seq(0,1,0.1), y = c(0,1), z = 0,
                                 proj_mat, col = grey(0.8), size = 0.5, break_axis = NULL) {
   
   # check inputs
-  assert_custom_class(myplot, "ggplot")
+  assert_class(myplot, "ggplot")
   assert_vector_numeric(x)
   assert_increasing(x)
   assert_vector_numeric(y)
@@ -568,8 +569,8 @@ gg3d_add_grid_lines <- function(myplot, x = seq(0,1,0.1), y = c(0,1), z = 0,
 #' @param theta angle of rotation (degrees).
 #' @param phi angle of elevation (degrees).
 #' @param d strength of perspective transformation.
-#' @param x_lim,y_lim,z_lime plotting limits.
-#' @param x_grid,y_grid sequences of breaks defining grid.
+#' @param x_lim,y_lim,z_lim plotting limits.
+#' @param x_grid,y_grid,z_grid sequences of breaks defining grid.
 #' @param z_type switch between horizontal grid in the z-dimension (\code{z_type
 #'   = 1}) and both horizontal and vertical grid (\code{z_type = 2}).
 #' @param flip_grid_x,flip_grid_y if \code{TRUE} then the vertical grid in the
@@ -976,18 +977,36 @@ dna_complement <- function(x, format_rna = FALSE) {
 #'   an individual migrating from any deme (in rows) to any other deme (in
 #'   columns).
 #' @param t_out vector of times at which results will be output.
+#' @param initial_method,initial_params method of initialising allele
+#'   frequencies, and parameters that are used in initialisation. There are two
+#'   possible options:
+#'   \enumerate{
+#'   \item Each deme has allele frequencies drawn independently from a symmetric
+#'   Dirichlet(theta/k) distribution, where \eqn{theta = 2*N*mu} and k is the
+#'   number of alleles. This is the analytical equilibrium distribution under
+#'   the model if there was no migration between demes.
+#'     \item All demes have the same initial allele frequencies, which are drawn
+#'     once from a Dirichlet(alpha_1, ..., alpha_k) distribution, where the
+#'     alpha parameters are input as \code{initial_params}. This can be a vector
+#'     if the same number of alleles is used over all loci, or a list of vectors
+#'     over loci to accommodate varying numbers of alleles.
+#'   }
 #' @param silent if \code{TRUE} then suppress output to console.
 #'
 #' @importFrom utils txtProgressBar
 #' @export
 
-sim_wrightfisher <- function(N, L, alleles, mu, mig_mat, t_out, silent = FALSE) {
+sim_wrightfisher <- function(N, L, alleles, mu, mig_mat, t_out,
+                             initial_method = 1, initial_params = NULL, silent = FALSE) {
   
   # check inputs
   assert_single_pos_int(N, zero_allowed = FALSE)
   assert_single_pos_int(L, zero_allowed = FALSE)
   assert_vector_pos_int(alleles, zero_allowed = FALSE)
   assert_gr(alleles, 1)
+  if (length(alleles) > 1) {
+    assert_length(alleles, L)
+  }
   assert_single_bounded(mu)
   assert_symmetric_matrix(mig_mat)
   assert_bounded(mig_mat)
@@ -995,13 +1014,30 @@ sim_wrightfisher <- function(N, L, alleles, mu, mig_mat, t_out, silent = FALSE) 
     stop("every row of mig_mat must sum to 1")
   }
   assert_vector_pos_int(t_out, zero_allowed = TRUE)
+  assert_in(initial_method, c(1, 2))
+  if (initial_method == 2) {
+    if (length(alleles) == 1) {
+      assert_vector(initial_params)
+      assert_length(initial_params, alleles)
+    } else {
+      assert_list(initial_params)
+      assert_length(initial_params, L)
+      for (i in 1:L) {
+        assert_length(initial_params[[i]], alleles[i])
+      }
+    }
+  }
   assert_single_logical(silent)
   
   # process some inputs
   if (length(alleles) == 1) {
     alleles <- rep(alleles, L)
   }
-  assert_length(alleles, L)
+  if (initial_method == 2) {
+    if (!is.list(initial_params)) {
+      initial_params = replicate(L, initial_params, simplify = FALSE)
+    }
+  }
   
   # get number of demes from dimensions of migration matrix
   K <- ncol(mig_mat)
@@ -1014,6 +1050,8 @@ sim_wrightfisher <- function(N, L, alleles, mu, mig_mat, t_out, silent = FALSE) 
                mu = mu,
                mig_mat = matrix_to_rcpp(mig_mat),
                t_out = t_out,
+               initial_method = initial_method,
+               initial_params = initial_params,
                silent = silent)
   
   # create progress bars

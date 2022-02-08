@@ -10,6 +10,7 @@
 #' @param x colour series
 #' @param size the size of plotting circles
 #'
+#' @importFrom graphics text
 #' @export
 
 col_plot <- function(x, size = 8) {

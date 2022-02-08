@@ -4,7 +4,17 @@
 \alias{sim_wrightfisher}
 \title{Simulate allele frequencies from Wright-Fisher model}
 \usage{
-sim_wrightfisher(N, L, alleles, mu, mig_mat, t_out)
+sim_wrightfisher(
+  N,
+  L,
+  alleles,
+  mu,
+  mig_mat,
+  t_out,
+  initial_method = 1,
+  initial_params = NULL,
+  silent = FALSE
+)
 }
 \arguments{
 \item{N}{number of individuals per deme. Must be the same for all
@@ -23,6 +33,23 @@ an individual migrating from any deme (in rows) to any other deme (in
 columns).}
 
 \item{t_out}{vector of times at which results will be output.}
+
+\item{initial_method, initial_params}{method of initialising allele
+frequencies, and parameters that are used in initialisation. There are two
+possible options:
+\enumerate{
+\item Each deme has allele frequencies drawn independently from a symmetric
+Dirichlet(theta/k) distribution, where \eqn{theta = 2*N*mu} and k is the
+number of alleles. This is the analytical equilibrium distribution under
+the model if there was no migration between demes.
+  \item All demes have the same initial allele frequencies, which are drawn
+  once from a Dirichlet(alpha_1, ..., alpha_k) distribution, where the
+  alpha parameters are input as \code{initial_params}. This can be a vector
+  if the same number of alleles is used over all loci, or a list of vectors
+  over loci to accommodate varying numbers of alleles.
+}}
+
+\item{silent}{if \code{TRUE} then suppress output to console.}
 }
 \description{
 Simulate Wright-Fisher evolution in a series of partially

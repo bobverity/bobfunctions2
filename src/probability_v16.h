@@ -82,6 +82,7 @@ void reshuffle(std::vector<TYPE> &x) {
 
 //------------------------------------------------
 int sample1(const std::vector<double> &p, double p_sum = 1.0);
+int sample1(const std::vector<int> &p, int p_sum);
 
 //------------------------------------------------
 int sample2(int a, int b);
@@ -110,6 +111,9 @@ double dpois1(int n, double lambda, bool return_log);
 
 //------------------------------------------------
 std::vector<double> rdirichlet1(double alpha, int n);
+
+//------------------------------------------------
+std::vector<double> rdirichlet2(std::vector<double> &alpha);
 
 //------------------------------------------------
 int rgeom1(const double p);

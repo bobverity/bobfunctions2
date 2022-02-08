@@ -15,7 +15,8 @@ Imports:
     Rcpp,
     coda,
     ggplot2,
-    dplyr
+    dplyr,
+    magrittr
 SystemRequirements: C++11
 Suggests: 
     testthat,
