@@ -9,3 +9,7 @@ box_blur_cpp <- function(m, d) {
     .Call(`_bobfunctions2_box_blur_cpp`, m, d)
 }
 
+bug_test_cpp <- function(x) {
+    .Call(`_bobfunctions2_bug_test_cpp`, x)
+}
+

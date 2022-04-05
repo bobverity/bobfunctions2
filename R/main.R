@@ -1787,3 +1787,11 @@ check_data_entry <- function(x1, x2, nsmall) {
 setdiff_symmetric <- function(x, y) {
   setdiff(union(x, y), intersect(x, y))
 }
+
+#------------------------------------------------
+# dummy function to test the behaviour of drjacoby. Can delete once this test is
+# complete
+#' @export
+bug_test <- function(x) {
+  bug_test_cpp(x)
+}

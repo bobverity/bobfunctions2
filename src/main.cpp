@@ -232,3 +232,9 @@ Rcpp::NumericMatrix box_blur_cpp(Rcpp::NumericMatrix m, int d) {
   
   return ret;
 }
+
+//------------------------------------------------
+// function to test operation of drjacoby. Can delete when this test is complete
+double bug_test_cpp(double x) {
+  return x*x;
+}

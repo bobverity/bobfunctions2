@@ -35,10 +35,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// bug_test_cpp
+double bug_test_cpp(double x);
+RcppExport SEXP _bobfunctions2_bug_test_cpp(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(bug_test_cpp(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bobfunctions2_sim_wrightfisher_cpp", (DL_FUNC) &_bobfunctions2_sim_wrightfisher_cpp, 3},
     {"_bobfunctions2_box_blur_cpp", (DL_FUNC) &_bobfunctions2_box_blur_cpp, 2},
+    {"_bobfunctions2_bug_test_cpp", (DL_FUNC) &_bobfunctions2_bug_test_cpp, 1},
     {NULL, NULL, 0}
 };
 
