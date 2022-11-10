@@ -118,3 +118,16 @@ col_tim <- function(n = 10) {
   my_pal <- colorRampPalette(raw_cols)
   return(my_pal(n))
 }
+
+#------------------------------------------------
+#' @title Six colours taken from a wooden toy
+#'
+#' @description Six colours taken from a wooden toy.
+#'
+#' @param n the number of colours
+#'
+#' @export
+
+col_toy <- function() {
+  return(c("#BC3221FF", "#578851FF", "#4188BDFF", "#D1B13AFF", "#6A4560FF", "#CA6C2DFF"))
+}
