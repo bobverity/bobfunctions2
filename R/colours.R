@@ -124,8 +124,6 @@ col_tim <- function(n = 10) {
 #'
 #' @description Six colours taken from a wooden toy.
 #'
-#' @param n the number of colours
-#'
 #' @export
 
 col_toy <- function() {

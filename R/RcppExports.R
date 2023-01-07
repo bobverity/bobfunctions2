@@ -5,6 +5,10 @@ sim_wrightfisher_cpp <- function(args, args_functions, args_progress) {
     .Call(`_bobfunctions2_sim_wrightfisher_cpp`, args, args_functions, args_progress)
 }
 
+sim_lattice_biallelic_cpp <- function(args, args_functions, args_progress) {
+    .Call(`_bobfunctions2_sim_lattice_biallelic_cpp`, args, args_functions, args_progress)
+}
+
 box_blur_cpp <- function(m, d) {
     .Call(`_bobfunctions2_box_blur_cpp`, m, d)
 }
