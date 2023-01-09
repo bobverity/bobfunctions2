@@ -227,8 +227,8 @@ Rcpp::List sim_lattice_biallelic_cpp(Rcpp::List args, Rcpp::List args_functions,
   // create two identical matrices for storing allele frequencies at all points
   // in a grid. We will step forward in time by alternating between these
   // matrices
-  vector<vector<double>> p_mat1(demes_y, vector<double>(demes_y, p_init));
-  vector<vector<double>> p_mat2(demes_y, vector<double>(demes_y));
+  vector<vector<double>> p_mat1(demes_y, vector<double>(demes_x, p_init));
+  vector<vector<double>> p_mat2(demes_y, vector<double>(demes_x));
   
   // option to store output at time 0
   int output_index = 0;
@@ -249,8 +249,8 @@ Rcpp::List sim_lattice_biallelic_cpp(Rcpp::List args, Rcpp::List args_functions,
     // update matrices
     if (target_mat == 0) {
       
-      for (int i = 0; i < demes_x; ++i) {
-        for (int j = 0; j < demes_y; ++j) {
+      for (int i = 0; i < demes_y; ++i) {
+        for (int j = 0; j < demes_x; ++j) {
           
           // deal with edges
           int up = i - 1;
@@ -280,8 +280,8 @@ Rcpp::List sim_lattice_biallelic_cpp(Rcpp::List args, Rcpp::List args_functions,
       
     } else {
       
-      for (int i = 0; i < demes_x; ++i) {
-        for (int j = 0; j < demes_y; ++j) {
+      for (int i = 0; i < demes_y; ++i) {
+        for (int j = 0; j < demes_x; ++j) {
           
           // deal with edges
           int up = i - 1;
