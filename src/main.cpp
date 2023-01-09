@@ -273,7 +273,7 @@ Rcpp::List sim_lattice_biallelic_cpp(Rcpp::List args, Rcpp::List args_functions,
           // update allele frequency
           double p_mig =  0.5*m*p_mat1[up][j] + 0.5*m*p_mat1[down][j] +
             0.5*m*p_mat1[i][left] + 0.5*m*p_mat1[i][right] + p_mat1[i][j]*(1 - 2*m);
-          double p_mut = p_mig*(1 - mu) + (1 - p_mig)*mu;
+          double p_mut = p_mig*(1 - mu*0.5) + (1 - p_mig)*mu*0.5;
           p_mat2[i][j] = rbinom1(N, p_mut) * N_inv;
         }
       }
@@ -304,7 +304,7 @@ Rcpp::List sim_lattice_biallelic_cpp(Rcpp::List args, Rcpp::List args_functions,
           // update allele frequency
           double p_mig =  0.5*m*p_mat2[up][j] + 0.5*m*p_mat2[down][j] +
             0.5*m*p_mat2[i][left] + 0.5*m*p_mat2[i][right] + p_mat2[i][j]*(1 - 2*m);
-          double p_mut = p_mig*(1 - mu) + (1 - p_mig)*mu;
+          double p_mut = p_mig*(1 - mu*0.5) + (1 - p_mig)*mu*0.5;
           p_mat1[i][j] = rbinom1(N, p_mut) * N_inv;
         }
       }
