@@ -1864,7 +1864,7 @@ sim_lattice_biallelic <- function(demes_x, demes_y, N, mu, m, t_out, p_init = 0.
   for (i in seq_along(t_out)) {
     output_processed[[i]] <- output_raw[[i]] %>%
       unlist() %>%
-      matrix(nrow = demes_y)
+      matrix(nrow = demes_x)
   }
   names(output_processed) <- sprintf("t%s", seq_along(t_out))
   
