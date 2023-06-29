@@ -32,6 +32,10 @@ header <- function(type = 1, copy_clipboard = FALSE) {
   s <- c(s, "# Author: Bob Verity")
   s <- c(s, paste0("# Date: ", Sys.Date()))
   s <- c(s, "#")
+  s <- c(s, "# Inputs: (none)")
+  s <- c(s, "#")
+  s <- c(s, "# Outputs: (none)")
+  s <- c(s, "#")
   s <- c(s, "# Purpose:")
   s <- c(s, "# (this is an example header)")
   s <- c(s, "#")
@@ -55,11 +59,6 @@ header <- function(type = 1, copy_clipboard = FALSE) {
   
   # further shared text
   s <- c(s, "# ------------------------------------------------------------------")
-  s <- c(s, "")
-  s <- c(s, "# load bobfunctions2 package. If not already installed this can be obtained from")
-  s <- c(s, "# Github via the command devtools::install_github('bobverity/bobfunctions2')")
-  s <- c(s, "library(bobfunctions2)")
-  s <- c(s, "")
   
   # combine text
   ret <- paste(unlist(s), collapse = "\n")
@@ -1864,7 +1863,7 @@ sim_lattice_biallelic <- function(demes_x, demes_y, N, mu, m, t_out, p_init = 0.
   for (i in seq_along(t_out)) {
     output_processed[[i]] <- output_raw[[i]] %>%
       unlist() %>%
-      matrix(nrow = demes_y)
+      matrix(nrow = demes_x)
   }
   names(output_processed) <- sprintf("t%s", seq_along(t_out))
   
