@@ -1079,38 +1079,6 @@ sim_wrightfisher <- function(N, L, alleles, mu, mig_mat, t_out,
 }
 
 #------------------------------------------------
-#' @title rbind a list of matrices into a single matrix
-#'
-#' @description rbind a list of matrices into a single matrix. All matrices must
-#'   have the same number of columns.
-#'
-#' @param l list of matrices.
-#'
-#' @export
-
-list_to_matrix <- function(l) {
-  
-  # check inputs
-  assert_list(l)
-  
-  # return if single element
-  if (length(l) == 1) {
-    return(l[[1]])
-  }
-  
-  # check same ncol of all elements
-  l_col <- mapply(ncol, l)
-  if (any(l_col != l_col[1])) {
-    stop("all matrices must have the same number of columns")
-  }
-  
-  # rbind all matrices
-  ret <- do.call(rbind, l)
-  
-  return(ret)
-}
-
-#------------------------------------------------
 #' @title Print summary of differences and intersections of two sets
 #'
 #' @description Given two sets s1 and s2, print four values:
@@ -1710,67 +1678,6 @@ rDPM <- function(n, alpha = 1, d = 1, tau = 10, sigma = 1) {
 }
 
 #------------------------------------------------
-#' @title Check numerical series for basic data entry mistakes
-#'
-#' @description Compares two numeric vectors. For numbers that differ by a
-#'   single digit, returns the "depth" of this digit from the end of the number
-#'   (i.e. 1.234 vs. 1.334 would have a depth of 3). Identical numbers return 0,
-#'   and numbers that differ by more than one digit return NA.
-#'   
-#' @details A clue that a data entry mistake has occurred is if two numbers are
-#'   identical at all digits except for a single digit. This clue is stronger if
-#'   the digit is towards the middle of the number, as the chance of two random
-#'   numbers being identical at many subsequent digits is small. This function
-#'   can be used to flag these values which can then be checked by hand more
-#'   easily.
-#'   
-#' @param x1,x2 two numeric vecors.
-#' @param nsmall number of digits to the right of decimal point that numbers are
-#'   formatted to.
-#'
-#' @export
-
-check_data_entry <- function(x1, x2, nsmall) {
-  
-  # check inputs
-  assert_vector_numeric(x1)
-  assert_vector_numeric(x2)
-  assert_same_length(x1, x2)
-  assert_single_pos_int(nsmall, zero_allowed = TRUE)
-  
-  # get vectors into characters with same number of digits
-  n <- length(x1)
-  x1_char <- format(x1, nsmall = nsmall, scientific = FALSE)
-  x2_char <- format(x2, nsmall = nsmall, scientific = FALSE)
-  
-  # split into characters
-  l1 <- strsplit(gsub("\\.", "", x1_char), "")
-  l2 <- strsplit(gsub("\\.", "", x2_char), "")
-  maxchar <- length(l1[[1]])
-  
-  # replace lists with NA in original series
-  l1[is.na(x1)] <- NA
-  l2[is.na(x2)] <- NA
-  
-  # find depth of differences
-  ret <- mapply(function(i) {
-    if (is.na(l1[[i]][1]) || is.na(l2[[i]][1])) {
-      return(NA)
-    }
-    w <- which(l1[[i]] != l2[[i]])
-    ret <- NA
-    if (length(w) == 0) {
-      ret <- 0
-    } else if (length(w) == 1) {
-      ret <- maxchar + 1 - w
-    }
-    ret
-  }, seq_along(l1))
-  
-  ret
-}
-
-#------------------------------------------------
 #' @title Find which elements are not shared between two sets
 #'
 #' @description The base \code{setdiff(vec1, vec2)} function is asymmetric in
@@ -1868,4 +1775,22 @@ sim_lattice_biallelic <- function(demes_x, demes_y, N, mu, m, t_out, p_init = 0.
   names(output_processed) <- sprintf("t%s", seq_along(t_out))
   
   return(output_processed)
+}
+
+#------------------------------------------------
+#' @title Head function for matrices
+#'
+#' @description The \code{head()} function is annoying when applied to a matrix,
+#'   as it prints just the first n rows, which doesn't work well for wide
+#'   matrices. This function prints just the first n rows and m columns (n = m
+#'   by default).
+#'   
+#' @param x a matrix.
+#' @param n the number of rows to print.
+#' @param m the number of cols to print (default m = n).
+#'
+#' @export
+
+head_mat <- function(x, n, m = n) {
+  print(x[1:n, 1:m])
 }
